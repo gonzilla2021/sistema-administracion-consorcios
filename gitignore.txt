@@ -1,0 +1,38 @@
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Java / Spring Boot
+backend/target/
+*.class
+*.jar
+*.war
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs y temporales
+*.log
+tmp/
+temp/
+
+# Material local de la cátedra y documentos de referencia
+/1- Identificacion del Problema y propuesta de solucion/
+/2- Definicion de Stack Tecnologico/
+/3- Refinamiento de propuesta/
+/TP-Final-Administracion-Consorcios.md.pdf
+/📚 TRABAJO FINAL INTEGRADOR-General.pdf
+/*.url
