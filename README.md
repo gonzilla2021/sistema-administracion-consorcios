@@ -51,7 +51,7 @@ Los pagos, las actas, las notificaciones y los reportes avanzados se desarrollar
 
 ## Documentación
 
-La propuesta completa de la primera entrega se encuentra en [docs/entrega-1-propuesta.md](/Entrega_1.md).
+La propuesta completa de la primera entrega se encuentra en [entrega-1.md](/Entrega_1.md).
 
 ## Alcance comprometido para el MVP
 
