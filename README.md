@@ -1,21 +1,18 @@
-## Trabajo Final Integrador
-
-**Proyecto:** Sistema de Administración de Consorcios  
-
-****Integrantes: Grupo 128**** 
-  Buchek, Lautaro (Legajo 0587)
-  Casalderrey, Hernán (Legajo 0265)
-  Castellini, Gonzalo (Legajo 4828)  
-
-**Tutora:** María Candela Grosso  
-
-**Fecha de entrega:** 30 de agosto de 2026  
-
-**Repositorio único:** https://github.com/gonzilla2021/sistema-administracion-consorcios.git
-
 # Sistema de Administración de Consorcios
 
-Sistema web para centralizar la administración de consorcios, unidades funcionales, personas, gastos, expensas, pagos y reclamos.
+**Trabajo Final Integrador - Grupo 128**
+
+| Integrante | Legajo |
+|---|---:|
+| Buchek, Lautaro | 0587 |
+| Casalderrey, Hernán | 0265 |
+| Castellini, Gonzalo | 4828 |
+
+**Tutora:** María Candela Grosso  
+**Fecha de entrega:** 30 de agosto de 2026  
+**Repositorio único:** https://github.com/gonzilla2021/sistema-administracion-consorcios
+
+Sistema web para centralizar la administración de consorcios, unidades funcionales, personas, gastos y liquidaciones de expensas, con acceso diferenciado según el rol de cada usuario y un control simple de pagos.
 
 ## Estado del proyecto
 
@@ -23,21 +20,31 @@ Proyecto en etapa de propuesta y planificación correspondiente a la primera ent
 
 ## Problema que aborda
 
-En muchos consorcios pequeños y medianos, la información se distribuye entre planillas de cálculo, documentos y grupos de mensajería. Esto dificulta el seguimiento de gastos, liquidaciones, pagos y reclamos, aumenta el trabajo manual y reduce la transparencia para propietarios e inquilinos.
+En muchos consorcios pequeños y medianos, la información se distribuye entre planillas de cálculo, documentos y grupos de mensajería. Esto dificulta el seguimiento de gastos y liquidaciones, aumenta el trabajo manual y reduce la transparencia para propietarios e inquilinos.
 
 El Sistema de Administración de Consorcios propone una fuente única de información, con accesos diferenciados según el rol de cada usuario.
 
-## Alcance inicial
+## Alcance comprometido para el MVP
 
-- Autenticación y autorización por roles.
-- Gestión de consorcios y unidades funcionales.
-- Asociación de propietarios e inquilinos.
-- Registro y clasificación de gastos.
-- Liquidación de expensas por coeficiente de propiedad.
-- Gestion de turnos de Amenities.
+- Registro e inicio de sesión.
+- Gestión de usuarios y permisos por rol.
+- Gestión de consorcios, unidades funcionales y coeficientes de propiedad.
+- Asociación de propietarios e inquilinos a una unidad funcional.
+- Registro y clasificación de gastos ordinarios y extraordinarios.
+- Prorrateo de gastos y generación de liquidaciones mensuales.
+- Marcación simple del pago de cada liquidación como pendiente o pagado, actualizada por el administrador.
+- Consulta de la liquidación correspondiente a cada unidad según el rol del usuario.
 
+## Funcionalidades planificadas para etapas posteriores
 
-Los pagos, las actas, las notificaciones y los reportes avanzados se desarrollarán en etapas posteriores, de acuerdo con el avance del producto.
+- Consulta de un estado de cuenta detallado e historial de pagos.
+- Historial ampliado de liquidaciones.
+- Registro y seguimiento de reclamos.
+- Gestión de reservas de amenities, como el SUM, la pileta o el quincho.
+- Publicación de actas y avisos.
+- Notificaciones y reportes avanzados.
+
+Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evaluarán una vez que el núcleo de gestión y liquidación de expensas se encuentre terminado y probado.
 
 ## Tecnologías propuestas
 
@@ -51,31 +58,16 @@ Los pagos, las actas, las notificaciones y los reportes avanzados se desarrollar
 
 ## Documentación
 
-La propuesta completa de la primera entrega se encuentra en [entrega_1.md](/Entrega_1.md).
+La propuesta completa de la primera entrega se encuentra en [Entrega_1.md](Entrega_1.md).
 
-## Alcance comprometido para el MVP
+## Roles y acceso a la información
 
-El producto mínimo viable incluirá:
-
-1. Registro e inicio de sesión.
-2. Gestión de usuarios y permisos por rol.
-3. Gestión de consorcios.
-4. Gestión de unidades funcionales y coeficientes de propiedad.
-5. Asociación de propietarios e inquilinos.
-6. Registro de gastos ordinarios y extraordinarios.
-7. Generación de liquidaciones mensuales, prorrateo de gastos según el coeficiente de cada unidad.
-8. Registro de Amenities y salon de usos multiples.
---
-### Mejoras
-9. Registro de pagos y consulta del estado de cuenta.
-10. Historial básico de liquidaciones.
-11. Registro y seguimiento de reclamos.
-
-## Actores involucrados
-
-- Superadministrador
-- Administrador de consorcio
-- Propietario / Inquilino
+| Rol | Acciones principales | Información a la que accede |
+|---|---|---|
+| Superadministrador | Gestiona las cuentas administrativas y crea o administra consorcios. | Información general y administrativa de los consorcios que gestiona. |
+| Administrador de consorcio | Gestiona unidades, personas vinculadas, gastos y liquidaciones de su consorcio; además marca los pagos como pendientes o pagados. | Información completa del consorcio asignado, sin acceso a otros consorcios. |
+| Propietario | Consulta la información y las liquidaciones de sus unidades. | Datos de sus unidades y sus liquidaciones correspondientes. |
+| Inquilino | Consulta la información autorizada de la unidad que ocupa. | Datos básicos y liquidaciones habilitadas de su unidad; no accede a información patrimonial ni a otros inmuebles. |
 
 ## Estructura prevista
 
@@ -94,4 +86,4 @@ Las instrucciones de instalación y ejecución se incorporarán cuando se creen 
 
 ## Repositorio
 
-URL pública: https://github.com/gonzilla2021/sistema-administracion-consorcios.git
+URL pública: https://github.com/gonzilla2021/sistema-administracion-consorcios

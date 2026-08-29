@@ -4,22 +4,25 @@
 
 **Proyecto:** Sistema de Administración de Consorcios  
 
-****Integrantes: Grupo 128**** 
-  Buchek, Lautaro (Legajo 0587)
-  Casalderrey, Hernán (Legajo 0265)
-  Castellini, Gonzalo (Legajo 4828)  
+**Integrantes - Grupo 128**
+
+| Integrante | Legajo |
+|---|---:|
+| Buchek, Lautaro | 0587 |
+| Casalderrey, Hernán | 0265 |
+| Castellini, Gonzalo | 4828 |
 
 **Tutora:** María Candela Grosso  
 
 **Fecha de entrega:** 30 de agosto de 2026  
 
-**Repositorio único:** https://github.com/gonzilla2021/sistema-administracion-consorcios.git
+**Repositorio único:** https://github.com/gonzilla2021/sistema-administracion-consorcios
 
 ---
 
 ## 1. Resumen ejecutivo
 
-El Sistema de Administración de Consorcios será una plataforma web destinada a centralizar la administración de uno o más consorcios. Permitirá gestionar edificios, unidades funcionales, propietarios, inquilinos, gastos, liquidaciones de expensas y accesos diferenciados por rol.
+El Sistema de Administración de Consorcios será una plataforma web destinada a centralizar la administración de uno o más consorcios. Permitirá gestionar edificios, unidades funcionales, propietarios, inquilinos, gastos, liquidaciones de expensas, un control simple de pagos y accesos diferenciados por rol.
 
 El proyecto surge ante la utilización frecuente de planillas de cálculo, documentos independientes y grupos de mensajería para administrar procesos relacionados entre sí. La dispersión de la información genera trabajo manual, dificulta el seguimiento histórico y limita el acceso de propietarios e inquilinos a datos actualizados.
 
@@ -27,19 +30,15 @@ La solución se desarrollará de manera incremental. La primera versión funcion
 
 ## 2. Contexto y problemática
 
-La administración de un consorcio requiere mantener información sobre edificios, unidades, personas vinculadas, gastos comunes, coeficientes de distribución, liquidaciones mensuales, pagos y reclamos. Estos datos forman parte de un mismo proceso, pero muchas veces se conservan en herramientas separadas.
+La administración de un consorcio requiere mantener información sobre edificios, unidades, personas vinculadas, gastos comunes, coeficientes de distribución y liquidaciones mensuales. Estos datos forman parte de un mismo proceso, pero muchas veces se conservan en herramientas separadas.
 
 Cuando la gestión se realiza mediante planillas, archivos y conversaciones de mensajería aparecen las siguientes dificultades:
 
 - duplicación o inconsistencia de datos;
 - errores durante el cálculo y la distribución de gastos;
-- comunicaciones importantes mezcladas con conversaciones informales.
-- Reservas de Amenities y espacios de usos multiples.
 - dependencia del administrador para acceder a información básica;
---
-### Mejoras
-- dificultad para reconstruir el historial de liquidaciones y pagos;
-- reclamos sin un estado o responsable claramente identificable;
+- comunicaciones importantes mezcladas con conversaciones informales;
+- dificultad para reconstruir el historial de liquidaciones.
 
 Por lo tanto, el problema no se reduce a la ausencia de una aplicación. El problema central es la falta de una fuente única, estructurada y trazable para administrar la información del consorcio y ofrecer a cada participante el acceso que le corresponde.
 
@@ -47,15 +46,29 @@ Por lo tanto, el problema no se reduce a la ausencia de una aplicación. El prob
 
 ### 3.1 Superadministrador
 
-Gestionará las cuentas administrativas y los distintos consorcios incorporados a la plataforma. Su necesidad principal será mantener separados y organizados los datos de cada consorcio.
+Gestionará las cuentas administrativas y los distintos consorcios incorporados a la plataforma. Podrá crear y administrar consorcios, así como gestionar las cuentas de los administradores. Accederá únicamente a la información administrativa de los consorcios bajo su gestión.
 
 ### 3.2 Administrador de consorcio
 
-Registrará unidades, personas, gastos, liquidaciones, pagos y reclamos. Necesitará reducir tareas repetitivas, consultar información histórica y obtener una visión actualizada de la situación del edificio.
+Registrará unidades, personas vinculadas, gastos y liquidaciones. También podrá marcar una liquidación como pendiente o pagada mediante un control simple. Necesitará reducir tareas repetitivas, consultar información histórica y obtener una visión actualizada de la situación del edificio. Podrá operar exclusivamente sobre el consorcio que tenga asignado.
 
-### 3.3 Propietario / Inquilino
+### 3.3 Propietario
 
-Podrá consultar la información de su unidad, sus liquidaciones, pagos y comunicaciones habilitadas. Necesitará acceder a información clara sin depender permanentemente del administrador.
+Podrá consultar los datos de las unidades de las que sea titular y las liquidaciones que les correspondan. No podrá modificar gastos, liquidaciones ni información de otras unidades o consorcios.
+
+### 3.4 Inquilino
+
+Podrá consultar la información habilitada de la unidad que ocupa y las liquidaciones que el administrador defina como visibles para su rol. No accederá a información patrimonial, estados de cuenta ni datos de otras unidades.
+
+### 3.5 Matriz preliminar de permisos
+
+| Acción o información | Superadministrador | Administrador de consorcio | Propietario | Inquilino |
+|---|:---:|:---:|:---:|:---:|
+| Crear y administrar consorcios | Sí | No | No | No |
+| Gestionar unidades y personas vinculadas | No | Sí, en su consorcio | No | No |
+| Registrar gastos, generar liquidaciones y marcar pagos | No | Sí, en su consorcio | No | No |
+| Consultar una liquidación | No | Sí, en su consorcio | Sí, en sus unidades | Sí, si está habilitada para su unidad |
+| Consultar datos de otra unidad o consorcio | No | No | No | No |
 
 
 ## 4. Flujo actual resumido
@@ -64,11 +77,7 @@ Podrá consultar la información de su unidad, sus liquidaciones, pagos y comuni
 2. Registra o copia los gastos en una planilla.
 3. Calcula el importe correspondiente a cada unidad utilizando los coeficientes de propiedad.
 4. Comunica las liquidaciones por correo electrónico o mensajería.
---
-### Mejoras
-5. Registra los pagos en otra planilla o modifica manualmente el estado de cada unidad.
-6. Recibe reclamos por diferentes canales y realiza su seguimiento de manera informal.
-7. Ante una consulta, busca información en archivos y conversaciones previas.
+5. Ante una consulta, busca información en archivos y conversaciones previas.
 
 Este proceso depende en gran medida de tareas manuales y no garantiza que todos los participantes consulten la misma versión de la información.
 
@@ -81,14 +90,10 @@ La plataforma permitirá:
 - registrar consorcios y unidades funcionales;
 - asociar propietarios e inquilinos mediante períodos de vigencia;
 - registrar y clasificar gastos ordinarios y extraordinarios;
-- restringir las operaciones y los datos visibles según el rol.
 - calcular liquidaciones mensuales mediante los coeficientes de propiedad;
-- Reserva de Amenities y salon de usos multiples.
---
-### Mejoras
-- registrar pagos y mantener el estado de cuenta de cada unidad;
-- consultar el historial de liquidaciones;
-- crear y seguir reclamos;
+- marcar una liquidación como pendiente o pagada mediante un control simple a cargo del administrador;
+- restringir las operaciones y los datos visibles según el rol;
+- permitir que cada usuario consulte la liquidación habilitada para su unidad.
 
 Con esto se busca transformar un conjunto de tareas aisladas en un flujo digital integrado y trazable.
 
@@ -113,8 +118,8 @@ La solución aportará valor porque permitirá:
 
 - reducir el tiempo dedicado a consolidar información dispersa;
 - disminuir errores de cálculo y transcripción;
-- conservar un historial consultable de operaciones;
-- mejorar la transparencia de las liquidaciones y los estados de cuenta;
+- conservar liquidaciones mensuales consultables;
+- mejorar la transparencia de las liquidaciones;
 - permitir que cada usuario consulte información actualizada según sus permisos.
 
 El diferencial académico y técnico no estará dado solamente por digitalizar formularios. El sistema incorporará reglas de negocio, relaciones temporales, cálculos monetarios, aislamiento de datos por consorcio y autorización contextual.
@@ -123,25 +128,33 @@ El diferencial académico y técnico no estará dado solamente por digitalizar f
 
 ### 8.1 Alcance comprometido para el MVP
 
-El producto mínimo viable incluirá:
+El producto mínimo viable incluirá únicamente las funcionalidades necesarias para organizar la información del consorcio y generar una liquidación de expensas:
 
-- Autenticación y autorización por roles.
-- Gestión de consorcios y unidades funcionales.
-- Asociación de propietarios e inquilinos.
-- Registro y clasificación de gastos.
-- Liquidación de expensas por coeficiente de propiedad.
-- Gestion de turnos de Amenities.
+- registro e inicio de sesión;
+- autorización según los roles definidos;
+- gestión de consorcios, unidades funcionales y coeficientes de propiedad;
+- asociación de propietarios e inquilinos a las unidades;
+- registro y clasificación de gastos ordinarios y extraordinarios;
+- prorrateo de gastos y generación de liquidaciones mensuales;
+- marcación simple de cada liquidación como pendiente o pagada, actualizada por el administrador;
+- consulta de la liquidación correspondiente a cada unidad según los permisos del usuario.
 
-Los pagos, las actas, las notificaciones y los reportes avanzados se desarrollarán en etapas posteriores, de acuerdo con el avance del producto.
+El MVP se considerará completo cuando un administrador pueda registrar gastos de un período, generar la liquidación para las unidades de su consorcio, marcar cada liquidación como pendiente o pagada y permitir que los usuarios autorizados consulten su liquidación.
 
-### 8.2 Ampliaciones
+### 8.2 Funcionalidades planificadas para etapas posteriores
 
 Una vez completado el alcance comprometido se evaluará incorporar:
 
+- consulta de un estado de cuenta detallado e historial de pagos;
+- historial ampliado de liquidaciones;
+- registro y seguimiento de reclamos;
+- gestión de reservas de amenities, como el SUM, la pileta o el quincho;
 - publicación de actas y avisos;
 - notificaciones dentro de la aplicación o por correo electrónico;
 - generación de liquidaciones descargables en PDF;
 - reportes de deuda y evolución de gastos.
+
+Estas funcionalidades se planifican como etapas posteriores porque amplían el número de módulos y reglas de negocio. Su implementación dependerá de que el MVP esté completo, probado y aprobado.
 
 ### 8.3 Fuera de alcance
 
@@ -165,7 +178,6 @@ Estas exclusiones evitan dependencias externas y mantienen el proyecto dentro de
 - Los importes se calcularán con precisión decimal y una regla de redondeo uniforme.
 - Un usuario solamente podrá consultar u operar sobre los consorcios y unidades para los cuales tenga autorización.
 - Los gastos extraordinarios deberán distinguirse de los ordinarios.
-- Los usuarios podran reserva amenities en su unidad registrada.
 
 
 ## 10. Stack tecnológico
@@ -202,7 +214,7 @@ Estas exclusiones evitan dependencias externas y mantienen el proyecto dentro de
 - GitHub como repositorio único y sistema de control de versiones.
 - Vercel para el frontend.
 - Render, Railway u otro PaaS compatible con Spring Boot para el backend, sujeto a la disponibilidad de planes gratuitos al momento del despliegue.
-- Neon, Supabase u otro servicio PostgreSQL administrado para la base de datos, sujeto a la disponibilidad de planes gratuitos.
+- Supabase u otro servicio PostgreSQL administrado para la base de datos, sujeto a la disponibilidad de planes gratuitos.
 - Postman para documentar y probar la API.
 - Docker como apoyo para reproducir el entorno local si el cronograma lo permite.
 
@@ -236,6 +248,4 @@ El backend se organizará inicialmente en capas:
 - componentes de seguridad para autenticación y autorización.
 
 Se utilizará una aplicación modular única, porque es suficiente para la escala prevista y disminuye el costo operativo frente a una arquitectura de microservicios.
-
-
 
