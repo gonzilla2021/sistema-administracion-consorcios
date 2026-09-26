@@ -147,6 +147,7 @@ CREATE TABLE dbo.LiquidacionesUnidad (
     Importe         DECIMAL(18,2) NOT NULL,
     EstadoPago      VARCHAR(10) NOT NULL DEFAULT 'PENDIENTE',
     FechaPago       DATE,
+    VisibleParaInquilino BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT PK_LiquidacionesUnidad PRIMARY KEY (Id),
     CONSTRAINT UQ_LiqUF_Liquidacion_Unidad UNIQUE (LiquidacionId, UnidadFuncionalId),
     CONSTRAINT CK_LiqUF_Importe CHECK (Importe >= 0),

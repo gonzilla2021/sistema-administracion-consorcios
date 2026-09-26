@@ -93,6 +93,7 @@ erDiagram
         DECIMAL Importe "DECIMAL(18,2)"
         VARCHAR(10) EstadoPago
         DATE FechaPago "Opcional"
+        BOOLEAN VisibleParaInquilino
     }
 ```
 

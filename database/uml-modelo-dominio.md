@@ -66,6 +66,7 @@ classDiagram
         +BigDecimal importe
         +EstadoPago estadoPago
         +LocalDate fechaPago
+        +boolean visibleParaInquilino
         +marcarPagada()
     }
 
@@ -105,7 +106,7 @@ classDiagram
     Usuario "1" --> "1" Rol : tiene
     Usuario "0..*" --> "0..1" Consorcio : administra (si es admin)
 
-    Consorcio "1" *-- "1..*" UnidadFuncional : posee
+    Consorcio "1" *-- "0..*" UnidadFuncional : posee
     Consorcio "1" *-- "0..*" Gasto : registra
     Consorcio "1" *-- "0..*" Liquidacion : genera
 
@@ -116,6 +117,6 @@ classDiagram
     Gasto --> TipoGasto
 
     Liquidacion --> EstadoLiquidacion
-    Liquidacion "1" *-- "1..*" LiquidacionUnidad : detalla
+    Liquidacion "1" *-- "0..*" LiquidacionUnidad : detalla
     UnidadFuncional "1" -- "0..*" LiquidacionUnidad : recibe
     LiquidacionUnidad --> EstadoPago

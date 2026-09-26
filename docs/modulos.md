@@ -20,7 +20,7 @@
 | Gestión de unidades funcionales | Registro y actualización de las unidades de cada consorcio, sus identificadores y los coeficientes de propiedad utilizados para distribuir los gastos. | Alta |
 | Gestión de personas y vinculaciones | Registro de personas y asociación como propietarias o inquilinas de una o más unidades, indicando las fechas de inicio y fin de cada vinculación. | Alta |
 | Gestión de gastos | Registro de gastos ordinarios y extraordinarios, indicando descripción, importe, fecha y referencia al comprobante cuando corresponda. | Alta |
-| Liquidación de expensas | Generación de liquidaciones mensuales y cálculo del importe correspondiente a cada unidad según sus coeficientes. Incluye el cierre de liquidaciones para impedir modificaciones directas posteriores. | Alta |
+| Liquidación de expensas | Generación de liquidaciones mensuales y cálculo del importe correspondiente a cada unidad según sus coeficientes. Incluye el cierre de liquidaciones para impedir cambios directos en los importes y su distribución, manteniendo disponible la actualización del estado y la fecha de pago.| Alta |
 | Control simple de pagos | Marcación de la liquidación de cada unidad como pendiente o pagada y registro de la fecha de pago, a cargo del administrador. No incluye cobros electrónicos ni pagos parciales. | Alta |
 | Consulta de unidades y liquidaciones | Consulta de los datos y las liquidaciones de las unidades de cada propietario o inquilino, según sus vinculaciones y permisos. | Media |
 

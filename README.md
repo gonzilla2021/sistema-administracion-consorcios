@@ -8,8 +8,7 @@
 | Casalderrey, Hernán | 0265 |
 | Castellini, Gonzalo | 4828 |
 
-**Tutora:** María Candela Grosso  
-**Fecha de entrega:** 30 de agosto de 2026  
+**Tutora:** María Candela Grosso   
 **Repositorio único:** https://github.com/gonzilla2021/sistema-administracion-consorcios
 
 Sistema web para centralizar la administración de consorcios, unidades funcionales, personas, gastos y liquidaciones de expensas, con acceso diferenciado según el rol de cada usuario y un control simple de pagos.
@@ -17,6 +16,7 @@ Sistema web para centralizar la administración de consorcios, unidades funciona
 ## Estado del proyecto
 
 Proyecto en etapa de propuesta y planificación correspondiente a la primera entrega del Trabajo Final Integrador.
+Proyecto en etapa de diseño y documentación correspondiente a la segunda entrega del Trabajo Final Integrador.
 
 ## Problema que aborda
 
@@ -58,7 +58,12 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 
 ## Documentación
 
-La propuesta completa de la primera entrega se encuentra en [Entrega_1.md](Entrega_1.md).
+- [Primera entrega: propuesta y alcance](Entrega_1.md).
+- [Arquitectura del proyecto](docs/arquitectura.md).
+- [Listado de módulos y prioridades](docs/modulos.md).
+- [Diagrama entidad-relación](database/diagrama-entidad-relacion.md).
+- [Esquema de base de datos](database/schema-consorcios.sql).
+- [Diagrama de clases del modelo de dominio](database/uml-modelo-dominio.md).
 
 ## Roles y acceso a la información
 

@@ -68,7 +68,7 @@ Podrá consultar la información habilitada de la unidad que ocupa y las liquida
 | Gestionar unidades y personas vinculadas | No | Sí, en su consorcio | No | No |
 | Registrar gastos, generar liquidaciones y marcar pagos | No | Sí, en su consorcio | No | No |
 | Consultar una liquidación | No | Sí, en su consorcio | Sí, en sus unidades | Sí, si está habilitada para su unidad |
-| Consultar datos de otra unidad o consorcio | No | No | No | No |
+| Consultar datos de unidades o consorcios no autorizados | No | No | No | No |
 
 
 ## 4. Flujo actual resumido
@@ -173,11 +173,12 @@ Estas exclusiones evitan dependencias externas y mantienen el proyecto dentro de
 
 - Cada unidad funcional pertenecerá a un único consorcio.
 - La suma de los coeficientes de las unidades de un consorcio deberá respetar el total configurado para ese consorcio.
-- Una persona podrá estar vinculada con diferentes unidades y roles.
-- Una liquidación cerrada no podrá modificarse directamente; toda corrección deberá quedar registrada.
+- Una persona podrá ser propietaria de una unidad e inquilina de otra. Para los usuarios propietarios e inquilinos, los permisos sobre cada unidad se determinarán por el tipo de vinculación vigente registrado en VinculacionesUnidad. El rol de la cuenta identificará su perfil general de acceso.
+- Una liquidación cerrada no permitirá modificar sus importes ni su distribución entre unidades. El administrador podrá actualizar el estado y la fecha de pago. Toda corrección posterior de los importes deberá quedar registrada con su fecha, motivo y responsable.
 - Los importes se calcularán con precisión decimal y una regla de redondeo uniforme.
 - Un usuario solamente podrá consultar u operar sobre los consorcios y unidades para los cuales tenga autorización.
 - Los gastos extraordinarios deberán distinguirse de los ordinarios.
+- Un consorcio puede crearse antes de cargar sus unidades. Una liquidación abierta puede estar en preparación, pero para cerrarse deberá contener los importes correspondientes a todas las unidades del consorcio.
 
 
 ## 10. Stack tecnológico
@@ -221,6 +222,8 @@ Estas exclusiones evitan dependencias externas y mantienen el proyecto dentro de
 **Justificación:** los servicios PaaS reducen el trabajo de administración de infraestructura y permiten cumplir el requisito de publicación online. La selección definitiva se realizará verificando límites, disponibilidad y compatibilidad antes de la etapa de despliegue.
 
 ## 11. Arquitectura inicial
+
+**Actualización de la segunda entrega:** la selección vigente de servicios y la arquitectura se documentan en [Arquitectura del proyecto](docs/arquitectura.md).
 
 La aplicación tendrá una arquitectura cliente-servidor:
 
