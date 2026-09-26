@@ -135,4 +135,3 @@ Antes de publicar se verificarán las condiciones y los recursos disponibles en 
 - [Diagrama entidad-relación](../database/diagrama-entidad-relacion.md).
 - [Diagrama de clases del modelo de dominio](../database/uml-modelo-dominio.md).
 
-PRUEBA VS CODE
