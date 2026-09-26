@@ -58,7 +58,12 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 
 ## Documentación
 
-La propuesta completa de la primera entrega se encuentra en [Entrega_1.md](Entrega_1.md).
+- [Primera entrega: propuesta y alcance](Entrega_1.md).
+- [Arquitectura del proyecto](docs/arquitectura.md).
+- [Listado de módulos y prioridades](docs/modulos.md).
+- [Diagrama entidad-relación](database/diagrama-entidad-relacion.md).
+- [Esquema de base de datos](database/schema-consorcios.sql).
+- [Diagrama de clases del modelo de dominio](database/uml-modelo-dominio.md).
 
 ## Roles y acceso a la información
 
