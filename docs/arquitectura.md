@@ -134,3 +134,5 @@ Antes de publicar se verificarán las condiciones y los recursos disponibles en 
 - [Esquema de base de datos](../database/schema-consorcios.sql).
 - [Diagrama entidad-relación](../database/diagrama-entidad-relacion.md).
 - [Diagrama de clases del modelo de dominio](../database/uml-modelo-dominio.md).
+
+PRUEBA VS CODE
