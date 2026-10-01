@@ -149,11 +149,15 @@ Las claves primarias y las restricciones `UNIQUE` generan sus propios índices. 
 ## 5. Restricciones principales del esquema
 
 - **Usuarios:** roles `SUPERADMINISTRADOR`, `ADMINISTRADOR_CONSORCIO`, `PROPIETARIO` o `INQUILINO`.
-- **Consorcios:** total de coeficientes mayor que cero.
-- **Unidades:** coeficiente mayor que cero y menor o igual a 100.
+- **Consorcios:** total de coeficientes igual a 100.
+- **Unidades:** coeficiente mayor que cero y menor o igual a 100. Un *constraint trigger* diferido (`TR_UF_SumaCoeficientes`) verifica al confirmar la transacción que, si el consorcio tiene unidades, la suma de sus coeficientes sea 100, con una tolerancia de ±0.0001 por redondeo (ver sección 9 de `Entrega_1.md`). Un `CHECK` no alcanza porque solo evalúa una fila; el trigger permite cargar todas las unidades en una misma transacción.
 - **Vinculaciones:** tipo `PROPIETARIO` o `INQUILINO`; la fecha de fin, si existe, no puede ser anterior a la de inicio. Al eliminar una unidad, se eliminan sus vinculaciones.
 - **Gastos:** monto mayor que cero y tipo `ORDINARIO` o `EXTRAORDINARIO`.
 - **Liquidaciones:** estado `ABIERTA` o `CERRADA`.
 - **Liquidaciones por unidad:** importe mayor o igual a cero y estado de pago `PENDIENTE` o `PAGADO`.
+
+## 6. Relación entre gastos y liquidaciones
+
+No hay clave foránea entre `Gastos` y `Liquidaciones`: la liquidación de un período se calcula tomando los gastos del consorcio cuya `Gastos.Fecha` cae dentro del mes indicado por `Liquidaciones.Periodo` (`YYYY-MM`). Ver las reglas completas en la sección 9 de `Entrega_1.md`.
 
 Este documento representa el esquema actual; las reglas de negocio que no están expresadas en el SQL deberán implementarse en la aplicación.

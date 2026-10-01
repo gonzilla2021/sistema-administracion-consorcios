@@ -17,10 +17,10 @@
 | Autenticación | Registro, inicio y cierre de sesión de los usuarios, con protección de sus credenciales. | Alta |
 | Gestión de usuarios y permisos | Gestión de cuentas y control de acceso según los roles de superadministrador, administrador de consorcio, propietario e inquilino. Cada usuario accede únicamente a la información y las operaciones autorizadas. | Alta |
 | Gestión de consorcios | Alta, consulta y actualización de los datos de los consorcios y asignación de sus administradores. | Alta |
-| Gestión de unidades funcionales | Registro y actualización de las unidades de cada consorcio, sus identificadores y los coeficientes de propiedad utilizados para distribuir los gastos. | Alta |
+| Gestión de unidades funcionales | Registro y actualización de las unidades de cada consorcio, sus identificadores y los coeficientes de propiedad utilizados para distribuir los gastos. La suma de los coeficientes de un consorcio debe ser 100 (tolerancia ±0.0001 por redondeo). | Alta |
 | Gestión de personas y vinculaciones | Registro de personas y asociación como propietarias o inquilinas de una o más unidades, indicando las fechas de inicio y fin de cada vinculación. | Alta |
-| Gestión de gastos | Registro de gastos ordinarios y extraordinarios, indicando descripción, importe, fecha y referencia al comprobante cuando corresponda. | Alta |
-| Liquidación de expensas | Generación de liquidaciones mensuales y cálculo del importe correspondiente a cada unidad según sus coeficientes. Incluye el cierre de liquidaciones para impedir cambios directos en los importes y su distribución, manteniendo disponible la actualización del estado y la fecha de pago.| Alta |
+| Gestión de gastos | Registro de gastos ordinarios y extraordinarios, indicando descripción, importe, fecha de imputación (su mes define la liquidación en que entra) y referencia al comprobante cuando corresponda. | Alta |
+| Liquidación de expensas | Generación de liquidaciones mensuales, que incluyen los gastos del consorcio cuya fecha cae en el mes del período, y cálculo del importe correspondiente a cada unidad según sus coeficientes. Incluye el cierre de liquidaciones para impedir cambios directos en los importes y su distribución, manteniendo disponible la actualización del estado y la fecha de pago.| Alta |
 | Control simple de pagos | Marcación de la liquidación de cada unidad como pendiente o pagada y registro de la fecha de pago, a cargo del administrador. No incluye cobros electrónicos ni pagos parciales. | Alta |
 | Consulta de unidades y liquidaciones | Consulta de los datos y las liquidaciones de las unidades de cada propietario o inquilino, según sus vinculaciones y permisos. | Media |
 

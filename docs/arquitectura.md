@@ -68,7 +68,7 @@ Las solicitudes protegidas se verificarán mediante Spring Security antes de eje
 
 El flujo principal será: **controlador → servicio → repositorio → base de datos**.
 
-Los servicios concentrarán reglas como la validación de los coeficientes, el cálculo de expensas, el cierre de liquidaciones y la marcación de pagos. Las operaciones que deban completarse juntas, como la creación de una liquidación y sus importes por unidad, se ejecutarán dentro de una transacción.
+Los servicios concentrarán reglas como la validación de los coeficientes (suma 100 con tolerancia por redondeo, reforzada en la base con un trigger diferido), la selección de gastos de cada período por su fecha, el cálculo de expensas, el cierre de liquidaciones y la marcación de pagos. Las operaciones que deban completarse juntas, como la creación de una liquidación y sus importes por unidad, se ejecutarán dentro de una transacción.
 
 ## 5. Seguridad y consistencia de datos
 

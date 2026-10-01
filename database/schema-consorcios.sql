@@ -40,7 +40,7 @@ CREATE TABLE dbo.Consorcios (
     TotalCoeficientes   DECIMAL(9,6)    NOT NULL DEFAULT 100,
     FechaAlta           DATE            NOT NULL DEFAULT CURRENT_DATE,
     CONSTRAINT PK_Consorcios PRIMARY KEY (Id),
-    CONSTRAINT CK_Consorcios_TotalCoef CHECK (TotalCoeficientes > 0)
+    CONSTRAINT CK_Consorcios_TotalCoef CHECK (TotalCoeficientes = 100)
 );
 
 -- ---------------------------------------------------------------------
@@ -81,6 +81,37 @@ CREATE TABLE dbo.UnidadesFuncionales (
     CONSTRAINT FK_UF_Consorcios FOREIGN KEY (ConsorcioId) REFERENCES dbo.Consorcios (Id)
 );
 
+-- Regla: si un consorcio tiene unidades, la suma de sus coeficientes debe ser
+-- 100 (porcentuales del reglamento de copropiedad), con una tolerancia de
+-- +/- 0.0001 por redondeo (ej.: 3 unidades de 33.333333 suman 99.999999).
+-- Un CHECK solo ve una fila, por eso se usa un constraint
+-- trigger diferido: se valida al COMMIT, así se pueden cargar todas las
+-- unidades en una misma transacción. Un consorcio sin unidades es válido.
+CREATE FUNCTION dbo.fn_validar_suma_coeficientes() RETURNS TRIGGER AS $$
+DECLARE
+    v_consorcio UUID;
+    v_suma      DECIMAL(18,6);
+BEGIN
+    FOR v_consorcio IN
+        SELECT DISTINCT c FROM (VALUES (OLD.ConsorcioId), (NEW.ConsorcioId)) AS t(c) WHERE c IS NOT NULL
+    LOOP
+        SELECT SUM(CoeficientePropiedad) INTO v_suma
+        FROM dbo.UnidadesFuncionales WHERE ConsorcioId = v_consorcio;
+
+        IF v_suma IS NOT NULL AND ABS(v_suma - 100) > 0.0001 THEN
+            RAISE EXCEPTION 'La suma de coeficientes del consorcio % es %, debe ser 100 (tolerancia 0.0001)', v_consorcio, v_suma
+                USING ERRCODE = 'check_violation';
+        END IF;
+    END LOOP;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER TR_UF_SumaCoeficientes
+    AFTER INSERT OR UPDATE OR DELETE ON dbo.UnidadesFuncionales
+    DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE FUNCTION dbo.fn_validar_suma_coeficientes();
+
 -- ---------------------------------------------------------------------
 -- Vinculaciones persona <-> unidad
 -- ---------------------------------------------------------------------
@@ -110,7 +141,7 @@ CREATE TABLE dbo.Gastos (
     Descripcion VARCHAR(300) NOT NULL,
     Monto       DECIMAL(18,2) NOT NULL,
     Tipo        VARCHAR(15) NOT NULL,
-    Fecha       DATE NOT NULL,
+    Fecha       DATE NOT NULL,   -- fecha de imputación: su mes (YYYY-MM) define la liquidación en que entra
     Comprobante VARCHAR(500),
     CONSTRAINT PK_Gastos PRIMARY KEY (Id),
     CONSTRAINT CK_Gastos_Tipo CHECK (Tipo IN ('ORDINARIO','EXTRAORDINARIO')),
@@ -126,7 +157,7 @@ CREATE INDEX IX_Gastos_Consorcio_Fecha ON dbo.Gastos (ConsorcioId, Fecha DESC);
 CREATE TABLE dbo.Liquidaciones (
     Id              UUID NOT NULL DEFAULT gen_random_uuid(),
     ConsorcioId     UUID NOT NULL,
-    Periodo         CHAR(7) NOT NULL,
+    Periodo         CHAR(7) NOT NULL,   -- 'YYYY-MM'; toma los gastos del consorcio con Gastos.Fecha en ese mes
     FechaGeneracion DATE NOT NULL DEFAULT CURRENT_DATE,
     Estado          VARCHAR(10) NOT NULL DEFAULT 'ABIERTA',
     CONSTRAINT PK_Liquidaciones PRIMARY KEY (Id),
