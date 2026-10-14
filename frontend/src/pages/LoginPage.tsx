@@ -1,12 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/auth'
+import { verificarConexion, type EstadoConexion } from '../services/health'
 import type { LoginRequest } from '../types'
+
+const ESTADOS: Record<EstadoConexion, { texto: string; color: string }> = {
+  verificando: { texto: 'Verificando conexión…', color: 'bg-slate-400' },
+  conectado: { texto: 'Conectado al servidor y a la base de datos', color: 'bg-emerald-500' },
+  'sin-base': { texto: 'Servidor activo, sin conexión a la base de datos', color: 'bg-amber-500' },
+  'sin-backend': { texto: 'No se pudo conectar con el servidor', color: 'bg-red-500' },
+}
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
+  const [conexion, setConexion] = useState<EstadoConexion>('verificando')
+
+  useEffect(() => {
+    verificarConexion().then(setConexion)
+  }, [])
   const {
     register,
     handleSubmit,
@@ -76,6 +89,11 @@ export default function LoginPage() {
         >
           {isSubmitting ? 'Ingresando…' : 'Ingresar'}
         </button>
+
+        <p role="status" className="flex items-center gap-2 text-xs text-slate-500">
+          <span aria-hidden="true" className={`inline-block h-2 w-2 rounded-full ${ESTADOS[conexion].color}`} />
+          {ESTADOS[conexion].texto}
+        </p>
       </form>
     </main>
   )

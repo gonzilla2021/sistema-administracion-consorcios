@@ -40,5 +40,3 @@ temp/
 # Artefactos de build de TypeScript
 *.tsbuildinfo
 
-# Carpeta de trabajo de herramientas de prueba
-.playwright-mcp/
