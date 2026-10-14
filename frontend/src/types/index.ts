@@ -1,0 +1,5 @@
+export type Rol = 'SUPERADMINISTRADOR' | 'ADMINISTRADOR_CONSORCIO' | 'PROPIETARIO' | 'INQUILINO'
+export type TipoVinculo = 'PROPIETARIO' | 'INQUILINO'
+export type TipoGasto = 'ORDINARIO' | 'EXTRAORDINARIO'
+export type EstadoLiquidacion = 'ABIERTA' | 'CERRADA'
+export type EstadoPago = 'PENDIENTE' | 'PAGADO'

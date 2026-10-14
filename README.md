@@ -64,6 +64,7 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 - [Diagrama entidad-relación](database/diagrama-entidad-relacion.md).
 - [Esquema de base de datos](database/schema-consorcios.sql).
 - [Diagrama de clases del modelo de dominio](database/uml-modelo-dominio.md).
+- [Guía de instalación y ejecución local](docs/instalacion.md).
 
 ## Roles y acceso a la información
 
@@ -87,7 +88,7 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 
 ## Ejecución local
 
-Las instrucciones de instalación y ejecución se incorporarán cuando se creen las aplicaciones de frontend y backend.
+Ver la [guía de instalación y ejecución local](docs/instalacion.md).
 
 ## Repositorio
 

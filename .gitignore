@@ -36,3 +36,6 @@ temp/
 /TP-Final-Administracion-Consorcios.md.pdf
 /📚 TRABAJO FINAL INTEGRADOR-General.pdf
 /*.url
+
+# Artefactos de build de TypeScript
+*.tsbuildinfo

@@ -1,0 +1,3 @@
+# El wrapper de Maven necesita finales de linea especificos
+backend/mvnw text eol=lf
+backend/mvnw.cmd text eol=crlf
