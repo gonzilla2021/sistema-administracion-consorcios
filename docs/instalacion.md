@@ -62,24 +62,11 @@ Ejecutar:
 .\mvnw.cmd spring-boot:run
 ```
 
-El backend queda en `http://localhost:8080`. El arranque correcto termina con `Started ConsorciosApplication`. Al iniciar, Hibernate valida que las entidades coincidan con las tablas (`ddl-auto=validate`).
+El backend queda en `http://localhost:8080` (o en el puerto de `PORT`). El arranque correcto termina con `Started ConsorciosApplication`. Al iniciar, Hibernate valida que las entidades coincidan con las tablas (`ddl-auto=validate`).
 
 ### Estado de la conexión a Supabase
 
-El proyecto de Supabase está creado (organización "Grupo 128 UTN", plan Free) y el esquema `database/schema-consorcios.sql` se ejecutó con "Run without RLS". **La conexión del backend a la base todavía no fue verificada**: la prueba hecha con la contraseña del proyecto devolvió `password authentication failed` tanto desde el backend como desde otro cliente, por lo que quedó pendiente fijar la contraseña de la base (ver más abajo).
-
-Pendientes para dejarla operativa:
-
-1. Fijar la contraseña de la base. Si el botón "Reset database password" de Supabase no la aplica, se puede hacer desde el SQL Editor (solo letras y números):
-   ```sql
-   alter user postgres with password '<nueva-contraseña>';
-   ```
-2. Verificar que existen las 8 tablas en el esquema `dbo` (Table Editor → selector de esquema `dbo`, o con esta consulta):
-   ```sql
-   select table_name from information_schema.tables where table_schema = 'dbo' order by 1;
-   ```
-   Deben aparecer: `consorcios`, `gastos`, `liquidaciones`, `liquidacionesunidad`, `personas`, `unidadesfuncionales`, `usuarios`, `vinculacionesunidad` (PostgreSQL guarda en minúsculas los nombres sin comillas).
-3. Cargar la contraseña en `backend/.env` y arrancar el backend (sección 4).
+El proyecto de Supabase está creado (organización "Grupo 128 UTN", plan Free) y el esquema `database/schema-consorcios.sql` está aplicado en el esquema `dbo`. **La conexión del backend a la base está verificada** (octubre de 2026): el backend arranca, Hibernate valida las 8 tablas y `GET /api/health` responde `{"backend":"UP","baseDeDatos":"UP"}`.
 
 Datos de conexión del Session pooler del proyecto (no son secretos; la contraseña sí):
 
@@ -90,16 +77,62 @@ base:     postgres
 usuario:  postgres.gmymbsjmyjwtkcyggtyg
 ```
 
-Si el puerto 8080 está ocupado (por ejemplo por Docker), agregar `PORT=9090` en `backend/.env`.
+Si el puerto 8080 está ocupado (por ejemplo por Docker), agregar `PORT=9090` en `backend/.env` y `VITE_API_URL=http://localhost:9090` en `frontend/.env`.
+
+### Verificar la conexión
+
+Con el backend levantado:
+
+```powershell
+curl http://localhost:9090/api/health
+```
+
+| Respuesta | Significado |
+|---|---|
+| `200` con `"baseDeDatos":"UP"` | El backend llega a Supabase |
+| `503` con `"baseDeDatos":"DOWN"` | El backend está activo pero no llega a la base (revisar `DB_URL`, `DB_USER`, `DB_PASSWORD`) |
+| Sin respuesta | El backend no está levantado |
+
+La pantalla de login del frontend muestra este mismo estado debajo del botón "Ingresar".
+
+### Cómo levantar el backend sin errores de compilación
+
+Si el IDE (extensión Java de VS Code) está abierto, puede recompilar `target/classes` sin Lombok mientras la aplicación arranca y producir `ClassFormatError ... Consorcio` o `NoClassDefFoundError`. Para evitarlo, empaquetar y ejecutar el `.jar`:
+
+```powershell
+.\mvnw.cmd clean package -DskipTests
+java -jar target\consorcios-0.0.1-SNAPSHOT.jar
+```
+
+### Primer usuario (superadministrador)
+
+La tabla `dbo.usuarios` arranca vacía y el sistema no tiene registro público, por lo que el primer superadministrador se crea directamente en la base. Ejecutar en DBeaver o en el SQL Editor de Supabase, reemplazando `<contraseña>` por la elegida (no guardarla en archivos ni en el repositorio):
+
+```sql
+insert into dbo.usuarios (email, passwordhash, rol)
+values ('admin@consorcios.test',
+        extensions.crypt('<contraseña>', extensions.gen_salt('bf', 10)),
+        'SUPERADMINISTRADOR')
+on conflict (email) do nothing;
+```
+
+`pgcrypto` genera un hash `$2a$` que Spring Security (`BCryptPasswordEncoder`) acepta. Para cambiar la contraseña de un usuario existente, usar `update dbo.usuarios set passwordhash = extensions.crypt('<contraseña>', extensions.gen_salt('bf', 10)) where email = '...'`. Si aparece `function extensions.crypt does not exist`, ejecutar antes `create extension if not exists pgcrypto with schema extensions;`.
 
 ### Errores frecuentes
 
 | Mensaje | Causa |
 |---|---|
-| `password authentication failed` | `DB_PASSWORD` incorrecta (o `DB_USER` sin el prefijo `postgres.<ref>` al usar el pooler) |
+| `password authentication failed` | `DB_PASSWORD` incorrecta, o `DB_USER` sin el prefijo `postgres.<ref>` al usar el pooler. **Revisar también si existe una variable de entorno `DB_PASSWORD` en Windows**: tiene prioridad sobre `backend/.env` y puede tener un valor viejo (`[Environment]::GetEnvironmentVariable('DB_PASSWORD','User')`; borrarla con `[Environment]::SetEnvironmentVariable('DB_PASSWORD', $null, 'User')` y reabrir la terminal y el IDE) |
+| `Unknown host` (en DBeaver o JDBC) | Error de tipeo en el host. Debe ser `aws-0-us-east-2.pooler.supabase.com` (con la `a` inicial) |
 | `UnknownHostException` / timeout | Tu red no tiene IPv6: usar el pooler |
 | `Schema-validation: missing table` | El esquema no está aplicado en la base de datos |
+| `ClassFormatError` / `NoClassDefFoundError` al arrancar | El IDE recompiló `target/` mientras corría la app: ejecutar el `.jar` (ver arriba) |
+| `JWT_SECRET debe tener al menos 32 caracteres` | Falta `JWT_SECRET` en `backend/.env` |
 | `JAVA_HOME` / versión de Java | Instalar JDK 21 y reabrir la terminal |
+
+### Conectar con DBeaver
+
+Usar el driver **PostgreSQL** (el estándar; no "Google Cloud SQL - PostgreSQL"), con los datos del pooler de arriba y la contraseña de la base. Los datos de la aplicación están en el esquema `dbo`.
 
 ## 5. Frontend
 
