@@ -1,6 +1,11 @@
 import { Navigate } from 'react-router-dom'
-import { estaAutenticado } from '../services/auth'
+import { estaAutenticado, usuarioActual } from '../services/auth'
+import type { Rol } from '../types'
 
-export default function RutaProtegida({ children }: { children: React.ReactNode }) {
-  return estaAutenticado() ? <>{children}</> : <Navigate to="/login" replace />
+/** Exige sesión; si se pasa `roles`, además que el usuario tenga uno de ellos. */
+export default function RutaProtegida({ children, roles }: { children: React.ReactNode; roles?: Rol[] }) {
+  if (!estaAutenticado()) return <Navigate to="/login" replace />
+  const usuario = usuarioActual()
+  if (roles && (!usuario || !roles.includes(usuario.rol))) return <Navigate to="/" replace />
+  return <>{children}</>
 }

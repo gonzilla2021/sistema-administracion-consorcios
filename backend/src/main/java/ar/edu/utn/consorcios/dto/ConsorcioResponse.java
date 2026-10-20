@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import ar.edu.utn.consorcios.entity.Consorcio;
 
-public record ConsorcioResponse(UUID id, String nombre, String direccion, LocalDate fechaAlta) {
+public record ConsorcioResponse(UUID id, String nombre, String direccion, LocalDate fechaAlta, long cantidadUnidades) {
 
-    public static ConsorcioResponse de(Consorcio c) {
-        return new ConsorcioResponse(c.getId(), c.getNombre(), c.getDireccion(), c.getFechaAlta());
+    public static ConsorcioResponse de(Consorcio c, long cantidadUnidades) {
+        return new ConsorcioResponse(c.getId(), c.getNombre(), c.getDireccion(), c.getFechaAlta(), cantidadUnidades);
     }
 }

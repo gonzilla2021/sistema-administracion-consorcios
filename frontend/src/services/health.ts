@@ -1,4 +1,4 @@
-import { api } from './api'
+import { api, ApiError } from './api'
 
 export type EstadoConexion = 'verificando' | 'conectado' | 'sin-base' | 'sin-backend'
 
@@ -14,6 +14,6 @@ export async function verificarConexion(): Promise<EstadoConexion> {
     return salud.baseDeDatos === 'UP' ? 'conectado' : 'sin-base'
   } catch (e) {
     // El backend responde 503 cuando no llega a la base; sin respuesta es que no está levantado.
-    return e instanceof Error && e.message.startsWith('Error 503') ? 'sin-base' : 'sin-backend'
+    return e instanceof ApiError && e.status === 503 ? 'sin-base' : 'sin-backend'
   }
 }

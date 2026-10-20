@@ -19,6 +19,9 @@ export async function login(datos: LoginRequest): Promise<SesionUsuario> {
   return sesion
 }
 
+export const cambiarPassword = (passwordActual: string, passwordNueva: string) =>
+  api<void>('/api/cuenta/password', { method: 'PUT', body: JSON.stringify({ passwordActual, passwordNueva }) })
+
 export function logout() {
   clearToken()
   localStorage.removeItem(USER_KEY)

@@ -10,4 +10,8 @@ import ar.edu.utn.consorcios.entity.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     Optional<Usuario> findByEmailIgnoreCase(String email);
+
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByPersonaId(UUID personaId);
 }

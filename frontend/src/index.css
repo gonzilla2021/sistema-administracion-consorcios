@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand: #2e5d4f;
+  --color-brand-dark: #244a3f;
+  --color-brand-soft: #e8f0ed;
+  --color-gold: #c8a468;
+  --color-gold-dark: #a8884f;
+  --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background: #f7f8f7;
+  color: #1e2a26;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white
+      hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm
+      font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer;
+  }
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400
+      focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30;
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+  .th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white;
+  }
+  .td {
+    @apply px-4 py-3 text-sm;
+  }
+  .link-accion {
+    @apply cursor-pointer text-xs font-semibold uppercase tracking-wide hover:underline;
+  }
+}
