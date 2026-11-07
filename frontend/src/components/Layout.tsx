@@ -72,6 +72,12 @@ export default function Layout() {
                 <NavLink to="/unidades" className={enlace}>
                   Unidades
                 </NavLink>
+                <NavLink to="/gastos" className={enlace}>
+                  Gastos
+                </NavLink>
+                <NavLink to="/liquidaciones" className={enlace}>
+                  Liquidaciones
+                </NavLink>
               </>
             )}
             {esSuper && (

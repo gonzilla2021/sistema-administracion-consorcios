@@ -63,6 +63,49 @@ export interface UsuarioInput {
   consorcioId?: string | null
 }
 
+/** GET /api/consorcios/{id}/gastos */
+export interface Gasto {
+  id: string
+  consorcioId: string
+  descripcion: string
+  monto: number
+  tipo: TipoGasto
+  fecha: string
+  comprobante: string | null
+}
+
+/** POST/PUT /api/consorcios/{id}/gastos */
+export interface GastoInput {
+  descripcion: string
+  monto: number
+  tipo: TipoGasto
+  fecha: string
+  comprobante?: string | null
+}
+
+/** POST /api/consorcios/{id}/liquidaciones y PATCH .../cerrar */
+export interface Liquidacion {
+  id: string
+  consorcioId: string
+  periodo: string
+  estado: EstadoLiquidacion
+  totalGastos: number
+  cantidadUnidades: number
+}
+
+/** GET /api/consorcios/{id}/liquidaciones/{liqId}/unidades */
+export interface LiquidacionUnidad {
+  id: string
+  unidadFuncionalId: string
+  identificador: string
+  importe: number
+  estadoPago: EstadoPago
+  fechaPago: string | null
+  visibleParaInquilino: boolean
+}
+
+export const moneda = (n: number) => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
+
 export const ROL_LEGIBLE: Record<Rol, string> = {
   SUPERADMINISTRADOR: 'Superadministrador',
   ADMINISTRADOR_CONSORCIO: 'Administrador de consorcio',

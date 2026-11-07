@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ConsorciosPage from './pages/ConsorciosPage'
 import UnidadesPage from './pages/UnidadesPage'
+import GastosPage from './pages/GastosPage'
+import LiquidacionesPage from './pages/LiquidacionesPage'
 import UsuariosPage from './pages/UsuariosPage'
 import CuentaPage from './pages/CuentaPage'
 import type { Rol } from './types'
@@ -37,6 +39,22 @@ export default function App() {
           element={
             <RutaProtegida roles={GESTION}>
               <UnidadesPage />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/gastos"
+          element={
+            <RutaProtegida roles={GESTION}>
+              <GastosPage />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/liquidaciones"
+          element={
+            <RutaProtegida roles={GESTION}>
+              <LiquidacionesPage />
             </RutaProtegida>
           }
         />

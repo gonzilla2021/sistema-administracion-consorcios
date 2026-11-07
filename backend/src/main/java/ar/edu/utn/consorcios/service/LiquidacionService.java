@@ -159,6 +159,36 @@ public class LiquidacionService {
     }
 
     @Transactional(readOnly = true)
+    public List<LiquidacionResponse> listar(
+            Authentication auth,
+            UUID consorcioId) {
+
+        consorcioService.exigirAcceso(auth, consorcioId);
+
+        return liquidaciones
+                .findByConsorcioIdOrderByPeriodoDesc(consorcioId)
+                .stream()
+                .map(l -> {
+                    List<LiquidacionUnidad> lista =
+                            detalles.findByLiquidacionId(l.getId());
+
+                    BigDecimal total = lista.stream()
+                            .map(LiquidacionUnidad::getImporte)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new LiquidacionResponse(
+                            l.getId(),
+                            consorcioId,
+                            l.getPeriodo(),
+                            l.getEstado(),
+                            total,
+                            lista.size()
+                    );
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<LiquidacionUnidadResponse> consultarDetalle(
             Authentication auth,
             UUID consorcioId,

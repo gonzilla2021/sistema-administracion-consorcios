@@ -38,6 +38,14 @@ public class LiquidacionController {
         return service.generar(auth, consorcioId, request);
     }
 
+    // Lista las liquidaciones del consorcio.
+    @GetMapping
+    public List<LiquidacionResponse> listar(
+            Authentication auth,
+            @PathVariable UUID consorcioId) {
+        return service.listar(auth, consorcioId);
+    }
+
     // Consulta importes por unidad.
     @GetMapping("/{liquidacionId}/unidades")
     public List<LiquidacionUnidadResponse> consultarDetalle(
