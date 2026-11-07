@@ -115,7 +115,7 @@ export interface Pago {
   fechaPago: string | null
 }
 
-/** GET /api/personas (solo superadministrador) */
+/** GET /api/consorcios/{id}/personas */
 export interface Persona {
   id: string
   nombre: string
@@ -125,7 +125,7 @@ export interface Persona {
   telefono: string | null
 }
 
-/** POST/PUT /api/personas */
+/** POST/PUT /api/consorcios/{id}/personas */
 export interface PersonaInput {
   nombre: string
   apellido: string

@@ -1,13 +1,15 @@
 import { api } from './api'
 import type { Persona, PersonaInput, Vinculacion, VinculacionInput } from '../types'
 
-export const listarPersonas = () => api<Persona[]>('/api/personas')
+const basePersonas = (consorcioId: string) => `/api/consorcios/${consorcioId}/personas`
 
-export const crearPersona = (datos: PersonaInput) =>
-  api<Persona>('/api/personas', { method: 'POST', body: JSON.stringify(datos) })
+export const listarPersonas = (consorcioId: string) => api<Persona[]>(basePersonas(consorcioId))
 
-export const actualizarPersona = (id: string, datos: PersonaInput) =>
-  api<Persona>(`/api/personas/${id}`, { method: 'PUT', body: JSON.stringify(datos) })
+export const crearPersona = (consorcioId: string, datos: PersonaInput) =>
+  api<Persona>(basePersonas(consorcioId), { method: 'POST', body: JSON.stringify(datos) })
+
+export const actualizarPersona = (consorcioId: string, id: string, datos: PersonaInput) =>
+  api<Persona>(`${basePersonas(consorcioId)}/${id}`, { method: 'PUT', body: JSON.stringify(datos) })
 
 const baseVinc = (consorcioId: string, unidadId: string) =>
   `/api/consorcios/${consorcioId}/unidades/${unidadId}/vinculaciones`

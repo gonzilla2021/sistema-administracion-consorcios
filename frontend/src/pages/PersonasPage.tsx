@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Cargando, ErrorCarga, MensajeError } from '../components/Estados'
+import { useConsorcioActivo } from '../components/ConsorcioActivo'
 import Modal from '../components/Modal'
 import { actualizarPersona, crearPersona, listarPersonas } from '../services/personas'
 import { exportarCsv } from '../services/csv'
@@ -19,12 +20,18 @@ const vacio = (): Form => ({ nombre: '', apellido: '', dni: '', email: '', telef
 const emailOk = (e: string) => e === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
 
 export default function PersonasPage() {
+  const { activo, cargando } = useConsorcioActivo()
   const qc = useQueryClient()
+  const consorcioId = activo?.id
   const [editando, setEditando] = useState<Persona | 'nueva' | null>(null)
   const [form, setForm] = useState<Form>(vacio())
   const [buscar, setBuscar] = useState('')
 
-  const personas = useQuery({ queryKey: ['personas'], queryFn: listarPersonas })
+  const personas = useQuery({
+    queryKey: ['personas', consorcioId],
+    queryFn: () => listarPersonas(consorcioId!),
+    enabled: !!consorcioId,
+  })
 
   const guardar = useMutation({
     mutationFn: () => {
@@ -35,10 +42,12 @@ export default function PersonasPage() {
         email: form.email.trim() || null,
         telefono: form.telefono.trim() || null,
       }
-      return editando === 'nueva' ? crearPersona(datos) : actualizarPersona((editando as Persona).id, datos)
+      return editando === 'nueva'
+        ? crearPersona(consorcioId!, datos)
+        : actualizarPersona(consorcioId!, (editando as Persona).id, datos)
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['personas'] })
+      qc.invalidateQueries({ queryKey: ['personas', consorcioId] })
       setEditando(null)
     },
   })
@@ -62,10 +71,13 @@ export default function PersonasPage() {
     form.nombre.trim() !== '' && form.apellido.trim() !== '' && form.dni.trim() !== '' && emailOk(form.email.trim())
   const set = (campo: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [campo]: e.target.value })
 
+  if (cargando) return <Cargando />
+  if (!activo) return <p className="text-sm text-slate-500">No hay un consorcio para mostrar.</p>
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Personas</h1>
+        <h1 className="text-2xl font-bold">Personas · {activo.nombre}</h1>
         <button className="btn-primary" onClick={() => abrir('nueva')}>+ Nueva persona</button>
       </div>
 

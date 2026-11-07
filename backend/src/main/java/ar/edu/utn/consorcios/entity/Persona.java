@@ -1,18 +1,22 @@
 package ar.edu.utn.consorcios.entity;
 
-import java.util.UUID;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
+// Persona registrada por el administrador dentro de un consorcio.
+// El DNI es único dentro del consorcio.
 @Entity
-@Table(name = "Personas")
+@Table(
+        name = "Personas",
+        uniqueConstraints = @UniqueConstraint(
+                name = "UQ_Personas_Consorcio_Dni",
+                columnNames = {"ConsorcioId", "Dni"}
+        )
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,13 +27,17 @@ public class Persona {
     @Column(name = "Id")
     private UUID id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ConsorcioId", nullable = false)
+    private Consorcio consorcio;
+
     @Column(name = "Nombre", nullable = false, length = 100)
     private String nombre;
 
     @Column(name = "Apellido", nullable = false, length = 100)
     private String apellido;
 
-    @Column(name = "Dni", nullable = false, length = 10, unique = true)
+    @Column(name = "Dni", nullable = false, length = 10)
     private String dni;
 
     @Column(name = "Email", length = 254)

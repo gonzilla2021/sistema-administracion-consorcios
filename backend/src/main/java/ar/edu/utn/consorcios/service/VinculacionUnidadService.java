@@ -78,6 +78,13 @@ public class VinculacionUnidadService {
                         "Persona inexistente"
                 ));
 
+        if (!persona.getConsorcio().getId().equals(consorcioId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "La persona no pertenece a este consorcio"
+            );
+        }
+
         VinculacionUnidad vinculacion = new VinculacionUnidad();
 
         vinculacion.setUnidadFuncional(unidad);

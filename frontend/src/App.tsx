@@ -80,7 +80,7 @@ export default function App() {
         <Route
           path="/personas"
           element={
-            <RutaProtegida roles={['SUPERADMINISTRADOR']}>
+            <RutaProtegida roles={GESTION}>
               <PersonasPage />
             </RutaProtegida>
           }

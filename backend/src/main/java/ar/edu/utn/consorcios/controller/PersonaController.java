@@ -1,74 +1,67 @@
-
 package ar.edu.utn.consorcios.controller;
 
 import ar.edu.utn.consorcios.dto.PersonaRequest;
 import ar.edu.utn.consorcios.dto.PersonaResponse;
 import ar.edu.utn.consorcios.service.PersonaService;
+
 import java.util.List;
 import java.util.UUID;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-// Indica que esta clase es un controlador REST.
+// Personas de un consorcio: las gestiona su administrador (o el superadministrador).
 @RestController
-
-// Ruta principal para las solicitudes de personas.
-@RequestMapping("/api/personas")
+@RequestMapping("/api/consorcios/{consorcioId}/personas")
+@PreAuthorize(
+        "hasAnyRole('SUPERADMINISTRADOR','ADMINISTRADOR_CONSORCIO')"
+)
 public class PersonaController {
 
-    // Servicio que contiene la lógica de negocio.
     private final PersonaService personaService;
 
-    // Inyección de dependencias mediante el constructor.
     public PersonaController(PersonaService personaService) {
         this.personaService = personaService;
     }
 
-    // Atiende solicitudes POST /api/personas.
+    // Registra una persona en el consorcio.
     @PostMapping
-
-    // Devuelve HTTP 201 cuando se crea correctamente.
     @ResponseStatus(HttpStatus.CREATED)
-
-    // Por ahora, solo el superadministrador puede crear.
-    @PreAuthorize("hasRole('SUPERADMINISTRADOR')")
     public PersonaResponse crear(
+            Authentication auth,
+            @PathVariable UUID consorcioId,
             @Valid @RequestBody PersonaRequest request) {
-
-        // Delegamos la operación al servicio.
-        return personaService.crear(request);
+        return personaService.crear(auth, consorcioId, request);
     }
 
-
-    // GET /api/personas
-    // Devuelve todas las personas registradas.
+    // Lista las personas del consorcio.
     @GetMapping
-    @PreAuthorize("hasRole('SUPERADMINISTRADOR')")
-    public List<PersonaResponse> listar() {
-
-        return personaService.listar();
+    public List<PersonaResponse> listar(
+            Authentication auth,
+            @PathVariable UUID consorcioId) {
+        return personaService.listar(auth, consorcioId);
     }
 
-
-    // Consulta una persona por ID.
+    // Consulta una persona del consorcio.
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('SUPERADMINISTRADOR')")
-    public PersonaResponse obtener(@PathVariable UUID id) {
-        return personaService.obtener(id);
+    public PersonaResponse obtener(
+            Authentication auth,
+            @PathVariable UUID consorcioId,
+            @PathVariable UUID id) {
+        return personaService.obtener(auth, consorcioId, id);
     }
 
-    // Actualiza una persona.
+    // Actualiza una persona del consorcio.
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('SUPERADMINISTRADOR')")
     public PersonaResponse actualizar(
+            Authentication auth,
+            @PathVariable UUID consorcioId,
             @PathVariable UUID id,
             @Valid @RequestBody PersonaRequest request) {
-
-        return personaService.actualizar(id, request);
+        return personaService.actualizar(auth, consorcioId, id, request);
     }
-
-
 }

@@ -15,6 +15,7 @@ erDiagram
 
     Consorcios |o..o{ Usuarios : "asigna administradores"
     Personas |o..o| Usuarios : "tiene cuenta"
+    Consorcios ||..o{ Personas : "registra"
     Consorcios ||..o{ UnidadesFuncionales : "contiene"
     Personas ||..o{ VinculacionesUnidad : "participa"
     UnidadesFuncionales ||..o{ VinculacionesUnidad : "registra"
@@ -44,9 +45,10 @@ erDiagram
 
     Personas {
         UUID Id PK
+        UUID ConsorcioId FK
         VARCHAR(100) Nombre
         VARCHAR(100) Apellido
-        VARCHAR(10) Dni UK
+        VARCHAR(10) Dni "Unico dentro del consorcio"
         VARCHAR(254) Email "Opcional"
         VARCHAR(30) Telefono "Opcional"
     }
@@ -114,7 +116,7 @@ Además de las claves primarias, el esquema define las siguientes restricciones 
 
 | Tabla | Campos únicos |
 |---|---|
-| Personas | `Dni` |
+| Personas | `(ConsorcioId, Dni)` |
 | Usuarios | `Email` |
 | Usuarios | `PersonaId`, cuando no es `NULL` |
 | UnidadesFuncionales | `(ConsorcioId, Identificador)` |

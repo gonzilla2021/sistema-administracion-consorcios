@@ -17,20 +17,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE SCHEMA IF NOT EXISTS dbo;
 
 -- ---------------------------------------------------------------------
--- Personas
--- ---------------------------------------------------------------------
-CREATE TABLE dbo.Personas (
-    Id          UUID NOT NULL DEFAULT gen_random_uuid(),
-    Nombre      VARCHAR(100)    NOT NULL,
-    Apellido    VARCHAR(100)    NOT NULL,
-    Dni         VARCHAR(10)     NOT NULL,
-    Email       VARCHAR(254),
-    Telefono    VARCHAR(30),
-    CONSTRAINT PK_Personas PRIMARY KEY (Id),
-    CONSTRAINT UQ_Personas_Dni UNIQUE (Dni)
-);
-
--- ---------------------------------------------------------------------
 -- Consorcios
 -- ---------------------------------------------------------------------
 CREATE TABLE dbo.Consorcios (
@@ -42,6 +28,24 @@ CREATE TABLE dbo.Consorcios (
     CONSTRAINT PK_Consorcios PRIMARY KEY (Id),
     CONSTRAINT CK_Consorcios_TotalCoef CHECK (TotalCoeficientes = 100)
 );
+
+-- ---------------------------------------------------------------------
+-- Personas (pertenecen a un consorcio; el DNI es unico dentro del consorcio)
+-- ---------------------------------------------------------------------
+CREATE TABLE dbo.Personas (
+    Id          UUID NOT NULL DEFAULT gen_random_uuid(),
+    ConsorcioId UUID NOT NULL,
+    Nombre      VARCHAR(100)    NOT NULL,
+    Apellido    VARCHAR(100)    NOT NULL,
+    Dni         VARCHAR(10)     NOT NULL,
+    Email       VARCHAR(254),
+    Telefono    VARCHAR(30),
+    CONSTRAINT PK_Personas PRIMARY KEY (Id),
+    CONSTRAINT UQ_Personas_Consorcio_Dni UNIQUE (ConsorcioId, Dni),
+    CONSTRAINT FK_Personas_Consorcios FOREIGN KEY (ConsorcioId) REFERENCES dbo.Consorcios (Id)
+);
+
+CREATE INDEX IX_Personas_ConsorcioId ON dbo.Personas (ConsorcioId);
 
 -- ---------------------------------------------------------------------
 -- Usuarios

@@ -42,8 +42,7 @@ export default function VinculacionesPage() {
     enabled: !!consorcioId && !!unidadId,
   })
 
-  // El backend solo deja listar personas al superadministrador.
-  const personas = useQuery({ queryKey: ['personas'], queryFn: listarPersonas, enabled: nueva, retry: false })
+  const personas = useQuery({ queryKey: ['personas', consorcioId], queryFn: () => listarPersonas(consorcioId!), enabled: nueva && !!consorcioId, retry: false })
 
   const refrescar = () => qc.invalidateQueries({ queryKey: ['vinculaciones', consorcioId, unidadId] })
 
@@ -189,7 +188,7 @@ export default function VinculacionesPage() {
             <div>
               <label htmlFor="v-per" className="label">Persona</label>
               {personas.isError ? (
-                <MensajeError>Solo el superadministrador puede listar personas para vincular.</MensajeError>
+                <MensajeError>No se pudo cargar la lista de personas.</MensajeError>
               ) : (
                 <select id="v-per" className="input" value={personaId} onChange={(e) => setPersonaId(e.target.value)}>
                   <option value="">{personas.isLoading ? 'Cargando…' : 'Elegí una persona'}</option>
