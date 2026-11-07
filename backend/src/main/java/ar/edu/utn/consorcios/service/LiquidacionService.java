@@ -69,6 +69,13 @@ public class LiquidacionService {
                         mes.atEndOfMonth()
                 );
 
+        if (gastosDelMes.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No hay gastos registrados en el período"
+            );
+        }
+
         BigDecimal total = gastosDelMes.stream()
                 .map(Gasto::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)

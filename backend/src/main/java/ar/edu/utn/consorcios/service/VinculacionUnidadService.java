@@ -85,6 +85,18 @@ public class VinculacionUnidadService {
             );
         }
 
+        if (haySuperposicion(
+                unidadId,
+                persona.getId(),
+                request.tipo(),
+                request.fechaInicio(),
+                request.fechaFin())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "La persona ya tiene una vinculación de ese tipo en la unidad en esas fechas"
+            );
+        }
+
         VinculacionUnidad vinculacion = new VinculacionUnidad();
 
         vinculacion.setUnidadFuncional(unidad);
@@ -142,6 +154,26 @@ public class VinculacionUnidadService {
         vinculacion.setFechaFin(fechaFin);
 
         return convertir(vinculaciones.save(vinculacion));
+    }
+
+    // Hay superposición si la misma persona ya tiene, en la misma unidad y con
+    // el mismo tipo, una vinculación cuyo período se cruza con el nuevo.
+    // Una fecha de fin nula significa "sin fin".
+    private boolean haySuperposicion(
+            UUID unidadId,
+            UUID personaId,
+            TipoVinculo tipo,
+            LocalDate inicio,
+            LocalDate fin) {
+
+        return vinculaciones.findByUnidadFuncionalId(unidadId).stream()
+                .filter(v -> v.getPersona().getId().equals(personaId))
+                .filter(v -> v.getTipo() == tipo)
+                .anyMatch(v ->
+                        (v.getFechaFin() == null
+                                || !v.getFechaFin().isBefore(inicio))
+                        && (fin == null
+                                || !v.getFechaInicio().isAfter(fin)));
     }
 
     // La fecha de fin no puede ser anterior al inicio.
