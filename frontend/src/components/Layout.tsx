@@ -81,12 +81,20 @@ export default function Layout() {
                 <NavLink to="/pagos" className={enlace}>
                   Pagos
                 </NavLink>
+                <NavLink to="/vinculaciones" className={enlace}>
+                  Vinculaciones
+                </NavLink>
               </>
             )}
             {esSuper && (
-              <NavLink to="/usuarios" className={enlace}>
-                Usuarios
-              </NavLink>
+              <>
+                <NavLink to="/personas" className={enlace}>
+                  Personas
+                </NavLink>
+                <NavLink to="/usuarios" className={enlace}>
+                  Usuarios
+                </NavLink>
+              </>
             )}
           </nav>
           <NavLink to="/cuenta" className={enlace} onClick={() => setAbierto(false)}>

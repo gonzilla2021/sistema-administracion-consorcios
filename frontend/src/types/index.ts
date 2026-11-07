@@ -115,6 +115,46 @@ export interface Pago {
   fechaPago: string | null
 }
 
+/** GET /api/personas (solo superadministrador) */
+export interface Persona {
+  id: string
+  nombre: string
+  apellido: string
+  dni: string
+  email: string | null
+  telefono: string | null
+}
+
+/** POST/PUT /api/personas */
+export interface PersonaInput {
+  nombre: string
+  apellido: string
+  dni: string
+  email?: string | null
+  telefono?: string | null
+}
+
+/** GET /api/consorcios/{id}/unidades/{unidadId}/vinculaciones */
+export interface Vinculacion {
+  id: string
+  unidadFuncionalId: string
+  personaId: string
+  nombre: string
+  apellido: string
+  tipo: TipoVinculo
+  fechaInicio: string
+  fechaFin: string | null
+  vigente: boolean
+}
+
+/** POST .../vinculaciones */
+export interface VinculacionInput {
+  personaId: string
+  tipo: TipoVinculo
+  fechaInicio: string
+  fechaFin?: string | null
+}
+
 export const moneda = (n: number) => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
 
 export const ROL_LEGIBLE: Record<Rol, string> = {
