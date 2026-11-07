@@ -41,11 +41,35 @@ Las pantallas muestran `Cargando…` con un indicador mientras llega la respuest
 
 ### Capturas
 
-Las capturas de `capturas/` corresponden al login y al tablero de la primera versión.
+Capturas de la aplicación en funcionamiento contra el backend y la base de Supabase (7 de noviembre de 2026), con el usuario de prueba `admin1@demo.test` y el Consorcio Demo 1. Están en `docs/capturas/`.
 
-| Login | Validación de campos |
+**Acceso y tablero**
+
+| Inicio de sesión | Tablero |
 |---|---|
-| ![Login](capturas/login.png) | ![Login con validación](capturas/login-validacion.png) |
+| ![Inicio de sesión, con el estado de la conexión](capturas/01-login.png) | ![Tablero del consorcio activo](capturas/02-tablero.png) |
+
+**Consorcios, unidades y personas**
+
+| Consorcios | Unidades y coeficientes |
+|---|---|
+| ![Consorcios asignados](capturas/03-consorcios.png) | ![Unidades y coeficientes, suman 100 %](capturas/04-unidades.png) |
+
+| Personas | Vinculaciones |
+|---|---|
+| ![Personas del consorcio](capturas/05-personas.png) | ![Vinculaciones de una unidad](capturas/06-vinculaciones.png) |
+
+**Gastos, liquidaciones y pagos**
+
+| Gastos | Liquidaciones |
+|---|---|
+| ![Gastos ordinarios y extraordinarios](capturas/07-gastos.png) | ![Liquidaciones por período](capturas/08-liquidaciones.png) |
+
+| Pagos |
+|---|
+| ![Control de pagos por unidad](capturas/09-pagos.png) |
+
+Faltan las capturas de Usuarios (solo superadministrador), Cambiar contraseña y el detalle de una liquidación.
 
 ## 3. Contrato con el backend
 
@@ -84,5 +108,5 @@ frontend/src/
 - **Consulta del propietario e inquilino:** el backend ya expone `GET /api/mi-cuenta/liquidaciones`, pero falta la pantalla.
 - No hay "olvidé mi contraseña" ni registro público de usuarios: las cuentas las crea el superadmin.
 - No hay borrado de consorcios ni de personas.
-- Las capturas del tablero y del login son de la primera versión; faltan capturas de las pantallas de gestión.
+- Faltan capturas de Usuarios, Cambiar contraseña y el detalle de una liquidación.
 - Los datos de prueba (`@demo.test`) son solo para desarrollo y deben borrarse antes de una entrega real.
