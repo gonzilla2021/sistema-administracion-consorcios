@@ -40,3 +40,7 @@ temp/
 # Artefactos de build de TypeScript
 *.tsbuildinfo
 
+
+# Copias de la base de datos (contienen datos reales)
+respaldo*.sql
+*.dump
