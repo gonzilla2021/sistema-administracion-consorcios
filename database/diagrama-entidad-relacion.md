@@ -13,8 +13,10 @@ El diagrama representa las ocho tablas del archivo `schema-consorcios.sql`. Incl
 erDiagram
     direction TB
 
-    Consorcios |o..o{ Usuarios : "asigna administradores"
+    Consorcios ||..o{ UsuariosConsorcios : "es administrado por"
+    Usuarios ||..o{ UsuariosConsorcios : "administra"
     Personas |o..o| Usuarios : "tiene cuenta"
+    Consorcios ||..o{ Personas : "registra"
     Consorcios ||..o{ UnidadesFuncionales : "contiene"
     Personas ||..o{ VinculacionesUnidad : "participa"
     UnidadesFuncionales ||..o{ VinculacionesUnidad : "registra"
@@ -39,14 +41,19 @@ erDiagram
         BOOLEAN Activo
         TIMESTAMP FechaAlta
         UUID PersonaId FK, UK "Opcional; unico si no es NULL"
-        UUID ConsorcioId FK "Opcional; solo administrador de consorcio"
+    }
+
+    UsuariosConsorcios {
+        UUID UsuarioId PK, FK
+        UUID ConsorcioId PK, FK
     }
 
     Personas {
         UUID Id PK
+        UUID ConsorcioId FK
         VARCHAR(100) Nombre
         VARCHAR(100) Apellido
-        VARCHAR(10) Dni UK
+        VARCHAR(10) Dni "Unico dentro del consorcio"
         VARCHAR(254) Email "Opcional"
         VARCHAR(30) Telefono "Opcional"
     }
@@ -106,7 +113,7 @@ erDiagram
 - **`||`:** exactamente uno; **`o|` / `|o`:** cero o uno; **`o{`:** cero o muchos.
 - Las líneas discontinuas indican relaciones no identificadoras: cada tabla tiene su propia clave primaria `Id`.
 
-Una persona puede tener varias vinculaciones con unidades, pero como máximo una cuenta de usuario. Un usuario puede no tener persona o consorcio asignado; el esquema solo permite asignar `ConsorcioId` a usuarios con rol `ADMINISTRADOR_CONSORCIO`.
+Una persona puede tener varias vinculaciones con unidades, pero como máximo una cuenta de usuario. Un usuario puede no tener persona. Un administrador de consorcio puede administrar varios consorcios, uno o ninguno (tabla `UsuariosConsorcios`); solo se cargan filas para usuarios con rol `ADMINISTRADOR_CONSORCIO`, regla que valida `UsuarioService` porque un `CHECK` no puede consultar otra tabla.
 
 ## 3. Claves únicas y relaciones compuestas
 
@@ -114,7 +121,7 @@ Además de las claves primarias, el esquema define las siguientes restricciones 
 
 | Tabla | Campos únicos |
 |---|---|
-| Personas | `Dni` |
+| Personas | `(ConsorcioId, Dni)` |
 | Usuarios | `Email` |
 | Usuarios | `PersonaId`, cuando no es `NULL` |
 | UnidadesFuncionales | `(ConsorcioId, Identificador)` |
@@ -139,7 +146,7 @@ Las claves primarias y las restricciones `UNIQUE` generan sus propios índices. 
 | Índice | Tabla | Campos y condición |
 |---|---|---|
 | UX_Usuarios_PersonaId | Usuarios | Único sobre `PersonaId`, donde `PersonaId IS NOT NULL`. |
-| IX_Usuarios_ConsorcioId | Usuarios | `ConsorcioId`, donde `ConsorcioId IS NOT NULL`. |
+| IX_UsuariosConsorcios_ConsorcioId | UsuariosConsorcios | `ConsorcioId`. |
 | IX_Vinc_UF | VinculacionesUnidad | `(UnidadFuncionalId, Tipo)`. |
 | IX_Vinc_Persona | VinculacionesUnidad | `PersonaId`. |
 | IX_Gastos_Consorcio_Fecha | Gastos | `(ConsorcioId, Fecha DESC)`. |

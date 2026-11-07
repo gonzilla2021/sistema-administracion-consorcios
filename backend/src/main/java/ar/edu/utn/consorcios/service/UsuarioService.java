@@ -38,7 +38,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
-        return usuarios.findAll().stream().map(UsuarioResponse::de).toList();
+        return usuarios.findAllConConsorcios().stream().map(UsuarioResponse::de).toList();
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +63,7 @@ public class UsuarioService {
             u.setPersona(personas.findById(request.personaId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Persona inexistente")));
         }
-        asignarConsorcio(u, request.consorcioId());
+        asignarConsorcios(u, request.consorcioIds());
         return UsuarioResponse.de(usuarios.save(u));
     }
 
@@ -76,26 +76,28 @@ public class UsuarioService {
             }
             u.setActivo(request.activo());
         }
-        if (request.consorcioId() != null) {
-            asignarConsorcio(u, request.consorcioId());
+        if (request.consorcioIds() != null) {
+            asignarConsorcios(u, request.consorcioIds());
         }
         return UsuarioResponse.de(u);
     }
 
-    private void asignarConsorcio(Usuario u, UUID consorcioId) {
+    /** Reemplaza los consorcios del administrador. Para los demás roles no se admiten consorcios. */
+    private void asignarConsorcios(Usuario u, List<UUID> ids) {
+        List<UUID> pedidos = ids == null ? List.of() : ids.stream().distinct().toList();
         if (u.getRol() != Rol.ADMINISTRADOR_CONSORCIO) {
-            if (consorcioId != null) {
+            if (!pedidos.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Solo el administrador de consorcio lleva consorcio asignado");
+                        "Solo el administrador de consorcio lleva consorcios asignados");
             }
             return;
         }
-        if (consorcioId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "El administrador de consorcio requiere consorcioId");
+        var encontrados = consorcios.findAllById(pedidos);
+        if (encontrados.size() != pedidos.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Consorcio inexistente");
         }
-        u.setConsorcio(consorcios.findById(consorcioId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Consorcio inexistente")));
+        u.getConsorcios().clear();
+        u.getConsorcios().addAll(encontrados);
     }
 
     private Usuario buscar(UUID id) {

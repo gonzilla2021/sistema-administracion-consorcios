@@ -29,7 +29,7 @@ public class ConsorcioService {
     }
 
     /**
-     * Superadministrador: todos. Administrador de consorcio: el suyo.
+     * Superadministrador: todos. Administrador de consorcio: los que administra (varios o ninguno).
      * Propietarios e inquilinos: ninguno (su consulta por unidades es un módulo posterior).
      */
     @Transactional(readOnly = true)
@@ -40,7 +40,13 @@ public class ConsorcioService {
             return consorcios.findAll().stream().map(c -> ConsorcioResponse.de(c, cantidades.getOrDefault(c.getId(), 0L))).toList();
         }
         if (tieneRol(auth, "ADMINISTRADOR_CONSORCIO")) {
-            return consorcios.findAdministradoPor(auth.getName()).map(this::respuesta).stream().toList();
+            List<Consorcio> propios = consorcios.findAdministradosPor(auth.getName());
+            if (propios.isEmpty()) {
+                return List.of();
+            }
+            Map<UUID, Long> cantidades = unidades.contarPorConsorcio().stream()
+                    .collect(Collectors.toMap(f -> (UUID) f[0], f -> (Long) f[1]));
+            return propios.stream().map(c -> ConsorcioResponse.de(c, cantidades.getOrDefault(c.getId(), 0L))).toList();
         }
         return List.of();
     }
@@ -68,19 +74,20 @@ public class ConsorcioService {
 
     /**
      * Devuelve el consorcio si existe y el usuario puede operar sobre él: el superadministrador sobre
-     * cualquiera, el administrador de consorcio solo sobre el suyo. Para el resto responde 403.
+     * cualquiera, el administrador de consorcio solo sobre los suyos. Para el resto responde 403.
      */
     @Transactional(readOnly = true)
     public Consorcio exigirAcceso(Authentication auth, UUID id) {
-        Consorcio consorcio = consorcios.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Consorcio inexistente"));
-        boolean permitido = tieneRol(auth, "SUPERADMINISTRADOR")
-                || (tieneRol(auth, "ADMINISTRADOR_CONSORCIO")
-                        && consorcios.findAdministradoPor(auth.getName()).map(c -> c.getId().equals(id)).orElse(false));
-        if (!permitido) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sin acceso a este consorcio");
+        // Una sola consulta a la base (cada una cuesta un viaje a Supabase).
+        if (tieneRol(auth, "SUPERADMINISTRADOR")) {
+            return consorcios.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Consorcio inexistente"));
         }
-        return consorcio;
+        if (tieneRol(auth, "ADMINISTRADOR_CONSORCIO")) {
+            return consorcios.findAdministradoPor(auth.getName(), id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Sin acceso a este consorcio"));
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sin acceso a este consorcio");
     }
 
     private ConsorcioResponse respuesta(Consorcio c) {

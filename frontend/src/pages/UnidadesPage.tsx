@@ -4,6 +4,7 @@ import { Cargando, ErrorCarga, MensajeError } from '../components/Estados'
 import { useConsorcioActivo } from '../components/ConsorcioActivo'
 import { listarUnidades, reemplazarUnidades } from '../services/consorcios'
 import { exportarCsv } from '../services/csv'
+import { exportarExcel } from '../services/excel'
 
 interface Fila {
   clave: number
@@ -119,12 +120,27 @@ export default function UnidadesPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-500">Mostrando {visibles.length} de {filas.length} unidades</p>
-        <button
-          className="btn-secondary"
-          onClick={() => exportarCsv('unidades.csv', ['Unidad', 'Coeficiente %'], visibles.map((f) => [f.identificador, f.coeficiente]))}
-        >
-          Exportar CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="btn-secondary"
+            onClick={() =>
+              exportarExcel(
+                'unidades.xlsx',
+                'Unidades',
+                [{ titulo: 'Unidad', ancho: 20 }, { titulo: 'Coeficiente %', ancho: 16 }],
+                visibles.map((f) => [f.identificador, aNumero(f.coeficiente)]),
+              )
+            }
+          >
+            Exportar Excel
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={() => exportarCsv('unidades.csv', ['Unidad', 'Coeficiente %'], visibles.map((f) => [f.identificador, f.coeficiente]))}
+          >
+            Exportar CSV
+          </button>
+        </div>
       </div>
 
       {unidades.isLoading && <Cargando />}

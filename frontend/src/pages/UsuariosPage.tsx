@@ -4,20 +4,63 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Modal from '../components/Modal'
 import { Cargando, ErrorCarga, MensajeError } from '../components/Estados'
 import { useConsorcioActivo } from '../components/ConsorcioActivo'
-import { cambiarEstadoUsuario, crearUsuario, listarUsuarios } from '../services/consorcios'
-import { ROL_LEGIBLE, type Rol, type UsuarioInput } from '../types'
+import { asignarConsorciosUsuario, cambiarEstadoUsuario, crearUsuario, listarUsuarios } from '../services/consorcios'
+import { ROL_LEGIBLE, type Rol, type Usuario, type UsuarioInput } from '../types'
 
 const ROLES = Object.keys(ROL_LEGIBLE) as Rol[]
 
+/** Casillas para elegir los consorcios que administra (varios o ninguno). */
+function SelectorConsorcios({ elegidos, onChange }: { elegidos: string[]; onChange: (ids: string[]) => void }) {
+  const { consorcios } = useConsorcioActivo()
+  const alternar = (id: string) => onChange(elegidos.includes(id) ? elegidos.filter((x) => x !== id) : [...elegidos, id])
+  return (
+    <fieldset>
+      <legend className="label">Consorcios que administra (opcional)</legend>
+      <div className="space-y-1">
+        {consorcios.map((c) => (
+          <label key={c.id} className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={elegidos.includes(c.id)} onChange={() => alternar(c.id)} />
+            {c.nombre}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  )
+}
+
+function FormConsorcios({ usuario, onClose }: { usuario: Usuario; onClose: () => void }) {
+  const qc = useQueryClient()
+  const [elegidos, setElegidos] = useState<string[]>(usuario.consorcioIds)
+  const guardar = useMutation({
+    mutationFn: () => asignarConsorciosUsuario(usuario.id, elegidos),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['usuarios'] })
+      onClose()
+    },
+  })
+  return (
+    <Modal titulo={`Consorcios de ${usuario.email}`} onClose={onClose}>
+      <div className="space-y-4">
+        <SelectorConsorcios elegidos={elegidos} onChange={setElegidos} />
+        {guardar.isError && <MensajeError>{guardar.error.message}</MensajeError>}
+        <div className="flex justify-end gap-2">
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button type="button" className="btn-primary" disabled={guardar.isPending} onClick={() => guardar.mutate()}>Guardar</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
 function FormUsuario({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient()
-  const { consorcios } = useConsorcioActivo()
+  const [consorcioIds, setConsorcioIds] = useState<string[]>([])
   const { register, handleSubmit, watch, formState: { errors } } = useForm<UsuarioInput>({
-    defaultValues: { rol: 'ADMINISTRADOR_CONSORCIO', consorcioId: consorcios[0]?.id ?? '' },
+    defaultValues: { rol: 'ADMINISTRADOR_CONSORCIO' },
   })
   const esAdmin = watch('rol') === 'ADMINISTRADOR_CONSORCIO'
   const crear = useMutation({
-    mutationFn: (d: UsuarioInput) => crearUsuario({ ...d, consorcioId: d.rol === 'ADMINISTRADOR_CONSORCIO' ? d.consorcioId : null }),
+    mutationFn: (d: UsuarioInput) => crearUsuario({ ...d, consorcioIds: d.rol === 'ADMINISTRADOR_CONSORCIO' ? consorcioIds : [] }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['usuarios'] })
       onClose()
@@ -51,16 +94,7 @@ function FormUsuario({ onClose }: { onClose: () => void }) {
             ))}
           </select>
         </div>
-        {esAdmin && (
-          <div>
-            <label htmlFor="u-cons" className="label">Consorcio que administra</label>
-            <select id="u-cons" className="input" {...register('consorcioId', { required: true })}>
-              {consorcios.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
-        )}
+        {esAdmin && <SelectorConsorcios elegidos={consorcioIds} onChange={setConsorcioIds} />}
         {crear.isError && <MensajeError>{crear.error.message}</MensajeError>}
         <div className="flex justify-end gap-2">
           <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
@@ -77,6 +111,7 @@ export default function UsuariosPage() {
   const [email, setEmail] = useState('')
   const [rol, setRol] = useState<Rol | ''>('')
   const [creando, setCreando] = useState(false)
+  const [editando, setEditando] = useState<Usuario | null>(null)
 
   const usuarios = useQuery({ queryKey: ['usuarios'], queryFn: listarUsuarios })
   const cambiar = useMutation({
@@ -84,7 +119,12 @@ export default function UsuariosPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['usuarios'] }),
   })
 
-  const nombreConsorcio = (id: string | null) => consorcios.find((c) => c.id === id)?.nombre ?? '—'
+  const nombresConsorcios = (u: Usuario) =>
+    u.rol !== 'ADMINISTRADOR_CONSORCIO'
+      ? '—'
+      : u.consorcioIds.length === 0
+        ? 'Ninguno'
+        : u.consorcioIds.map((id) => consorcios.find((c) => c.id === id)?.nombre ?? id).join(', ')
   const visibles = (usuarios.data ?? []).filter(
     (u) => u.email.toLowerCase().includes(email.toLowerCase()) && (rol === '' || u.rol === rol),
   )
@@ -123,7 +163,7 @@ export default function UsuariosPage() {
               <tr>
                 <th className="th rounded-tl-2xl">Email</th>
                 <th className="th">Rol</th>
-                <th className="th">Consorcio</th>
+                <th className="th">Consorcios</th>
                 <th className="th">Estado</th>
                 <th className="th rounded-tr-2xl text-right">Acciones</th>
               </tr>
@@ -133,13 +173,16 @@ export default function UsuariosPage() {
                 <tr key={u.id}>
                   <td className="td font-medium">{u.email}</td>
                   <td className="td">{ROL_LEGIBLE[u.rol]}</td>
-                  <td className="td">{nombreConsorcio(u.consorcioId)}</td>
+                  <td className="td">{nombresConsorcios(u)}</td>
                   <td className="td">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
                       {u.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className="td text-right">
+                  <td className="td space-x-3 text-right">
+                    {u.rol === 'ADMINISTRADOR_CONSORCIO' && (
+                      <button className="link-accion" onClick={() => setEditando(u)}>Consorcios</button>
+                    )}
                     <button className="link-accion" disabled={cambiar.isPending} onClick={() => cambiar.mutate({ id: u.id, activo: !u.activo })}>
                       {u.activo ? 'Desactivar' : 'Activar'}
                     </button>
@@ -157,6 +200,7 @@ export default function UsuariosPage() {
       )}
 
       {creando && <FormUsuario onClose={() => setCreando(false)} />}
+      {editando && <FormConsorcios usuario={editando} onClose={() => setEditando(null)} />}
     </div>
   )
 }

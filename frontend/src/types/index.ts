@@ -52,7 +52,7 @@ export interface Usuario {
   activo: boolean
   fechaAlta: string
   personaId: string | null
-  consorcioId: string | null
+  consorcioIds: string[]
 }
 
 /** POST /api/usuarios */
@@ -60,8 +60,102 @@ export interface UsuarioInput {
   email: string
   password: string
   rol: Rol
-  consorcioId?: string | null
+  consorcioIds?: string[]
 }
+
+/** GET /api/consorcios/{id}/gastos */
+export interface Gasto {
+  id: string
+  consorcioId: string
+  descripcion: string
+  monto: number
+  tipo: TipoGasto
+  fecha: string
+  comprobante: string | null
+}
+
+/** POST/PUT /api/consorcios/{id}/gastos */
+export interface GastoInput {
+  descripcion: string
+  monto: number
+  tipo: TipoGasto
+  fecha: string
+  comprobante?: string | null
+}
+
+/** POST /api/consorcios/{id}/liquidaciones y PATCH .../cerrar */
+export interface Liquidacion {
+  id: string
+  consorcioId: string
+  periodo: string
+  estado: EstadoLiquidacion
+  totalGastos: number
+  cantidadUnidades: number
+}
+
+/** GET /api/consorcios/{id}/liquidaciones/{liqId}/unidades */
+export interface LiquidacionUnidad {
+  id: string
+  unidadFuncionalId: string
+  identificador: string
+  importe: number
+  estadoPago: EstadoPago
+  fechaPago: string | null
+  visibleParaInquilino: boolean
+}
+
+/** GET /api/consorcios/{id}/pagos y PATCH .../pagar | .../revertir (el id es el del detalle de liquidación) */
+export interface Pago {
+  id: string
+  liquidacionId: string
+  unidadFuncionalId: string
+  identificadorUnidad: string
+  importe: number
+  estadoPago: EstadoPago
+  fechaPago: string | null
+}
+
+/** GET /api/consorcios/{id}/personas */
+export interface Persona {
+  id: string
+  nombre: string
+  apellido: string
+  dni: string
+  email: string | null
+  telefono: string | null
+}
+
+/** POST/PUT /api/consorcios/{id}/personas */
+export interface PersonaInput {
+  nombre: string
+  apellido: string
+  dni: string
+  email?: string | null
+  telefono?: string | null
+}
+
+/** GET /api/consorcios/{id}/unidades/{unidadId}/vinculaciones */
+export interface Vinculacion {
+  id: string
+  unidadFuncionalId: string
+  personaId: string
+  nombre: string
+  apellido: string
+  tipo: TipoVinculo
+  fechaInicio: string
+  fechaFin: string | null
+  vigente: boolean
+}
+
+/** POST .../vinculaciones */
+export interface VinculacionInput {
+  personaId: string
+  tipo: TipoVinculo
+  fechaInicio: string
+  fechaFin?: string | null
+}
+
+export const moneda = (n: number) => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
 
 export const ROL_LEGIBLE: Record<Rol, string> = {
   SUPERADMINISTRADOR: 'Superadministrador',

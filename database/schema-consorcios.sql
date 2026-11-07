@@ -17,20 +17,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE SCHEMA IF NOT EXISTS dbo;
 
 -- ---------------------------------------------------------------------
--- Personas
--- ---------------------------------------------------------------------
-CREATE TABLE dbo.Personas (
-    Id          UUID NOT NULL DEFAULT gen_random_uuid(),
-    Nombre      VARCHAR(100)    NOT NULL,
-    Apellido    VARCHAR(100)    NOT NULL,
-    Dni         VARCHAR(10)     NOT NULL,
-    Email       VARCHAR(254),
-    Telefono    VARCHAR(30),
-    CONSTRAINT PK_Personas PRIMARY KEY (Id),
-    CONSTRAINT UQ_Personas_Dni UNIQUE (Dni)
-);
-
--- ---------------------------------------------------------------------
 -- Consorcios
 -- ---------------------------------------------------------------------
 CREATE TABLE dbo.Consorcios (
@@ -44,6 +30,24 @@ CREATE TABLE dbo.Consorcios (
 );
 
 -- ---------------------------------------------------------------------
+-- Personas (pertenecen a un consorcio; el DNI es unico dentro del consorcio)
+-- ---------------------------------------------------------------------
+CREATE TABLE dbo.Personas (
+    Id          UUID NOT NULL DEFAULT gen_random_uuid(),
+    ConsorcioId UUID NOT NULL,
+    Nombre      VARCHAR(100)    NOT NULL,
+    Apellido    VARCHAR(100)    NOT NULL,
+    Dni         VARCHAR(10)     NOT NULL,
+    Email       VARCHAR(254),
+    Telefono    VARCHAR(30),
+    CONSTRAINT PK_Personas PRIMARY KEY (Id),
+    CONSTRAINT UQ_Personas_Consorcio_Dni UNIQUE (ConsorcioId, Dni),
+    CONSTRAINT FK_Personas_Consorcios FOREIGN KEY (ConsorcioId) REFERENCES dbo.Consorcios (Id)
+);
+
+CREATE INDEX IX_Personas_ConsorcioId ON dbo.Personas (ConsorcioId);
+
+-- ---------------------------------------------------------------------
 -- Usuarios
 -- ---------------------------------------------------------------------
 CREATE TABLE dbo.Usuarios (
@@ -54,17 +58,27 @@ CREATE TABLE dbo.Usuarios (
     Activo          BOOLEAN          NOT NULL DEFAULT TRUE,
     FechaAlta       TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PersonaId       UUID,
-    ConsorcioId     UUID,
     CONSTRAINT PK_Usuarios PRIMARY KEY (Id),
     CONSTRAINT UQ_Usuarios_Email UNIQUE (Email),
     CONSTRAINT CK_Usuarios_Rol CHECK (Rol IN ('SUPERADMINISTRADOR','ADMINISTRADOR_CONSORCIO','PROPIETARIO','INQUILINO')),
-    CONSTRAINT CK_Usuarios_ConsorcioSoloAdmin CHECK (ConsorcioId IS NULL OR Rol = 'ADMINISTRADOR_CONSORCIO'),
-    CONSTRAINT FK_Usuarios_Personas   FOREIGN KEY (PersonaId)   REFERENCES dbo.Personas (Id),
-    CONSTRAINT FK_Usuarios_Consorcios FOREIGN KEY (ConsorcioId) REFERENCES dbo.Consorcios (Id)
+    CONSTRAINT FK_Usuarios_Personas FOREIGN KEY (PersonaId) REFERENCES dbo.Personas (Id)
 );
 
 CREATE UNIQUE INDEX UX_Usuarios_PersonaId ON dbo.Usuarios (PersonaId) WHERE PersonaId IS NOT NULL;
-CREATE INDEX IX_Usuarios_ConsorcioId ON dbo.Usuarios (ConsorcioId) WHERE ConsorcioId IS NOT NULL;
+
+-- ---------------------------------------------------------------------
+-- Consorcios que administra cada administrador (N a N: puede tener varios o ninguno).
+-- Solo se cargan filas para usuarios con rol ADMINISTRADOR_CONSORCIO (lo exige UsuarioService).
+-- ---------------------------------------------------------------------
+CREATE TABLE dbo.UsuariosConsorcios (
+    UsuarioId   UUID NOT NULL,
+    ConsorcioId UUID NOT NULL,
+    CONSTRAINT PK_UsuariosConsorcios PRIMARY KEY (UsuarioId, ConsorcioId),
+    CONSTRAINT FK_UsuCons_Usuarios   FOREIGN KEY (UsuarioId)   REFERENCES dbo.Usuarios (Id) ON DELETE CASCADE,
+    CONSTRAINT FK_UsuCons_Consorcios FOREIGN KEY (ConsorcioId) REFERENCES dbo.Consorcios (Id)
+);
+
+CREATE INDEX IX_UsuariosConsorcios_ConsorcioId ON dbo.UsuariosConsorcios (ConsorcioId);
 
 -- ---------------------------------------------------------------------
 -- Unidades funcionales

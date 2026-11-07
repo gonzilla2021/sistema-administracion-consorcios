@@ -5,7 +5,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  // Los datos se consideran frescos 30 s: al volver a una pantalla se muestran al instante.
+  defaultOptions: { queries: { staleTime: 30_000 } },
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

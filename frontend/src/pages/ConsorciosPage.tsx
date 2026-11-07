@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Modal from '../components/Modal'
-import { Cargando, ErrorCarga, MensajeError } from '../components/Estados'
+import { Cargando, MensajeError } from '../components/Estados'
 import { useConsorcioActivo } from '../components/ConsorcioActivo'
 import { actualizarConsorcio, crearConsorcio } from '../services/consorcios'
 import { exportarCsv } from '../services/csv'
@@ -49,7 +49,6 @@ function FormConsorcio({ inicial, onClose }: { inicial: Consorcio | null; onClos
 export default function ConsorciosPage() {
   const navigate = useNavigate()
   const { consorcios, cargando, elegir } = useConsorcioActivo()
-  const qc = useQueryClient()
   const esSuper = usuarioActual()?.rol === 'SUPERADMINISTRADOR'
   const [nombre, setNombre] = useState('')
   const [direccion, setDireccion] = useState('')
@@ -99,7 +98,11 @@ export default function ConsorciosPage() {
       </div>
 
       {cargando && <Cargando />}
-      {!cargando && consorcios.length === 0 && <ErrorCarga onReintentar={() => qc.invalidateQueries({ queryKey: ['consorcios'] })} />}
+      {!cargando && consorcios.length === 0 && (
+        <p className="text-sm text-slate-500">
+          No tenés consorcios asignados. Pedile al superadministrador que te asigne uno.
+        </p>
+      )}
 
       {visibles.length > 0 && (
         <div className="card overflow-x-auto">

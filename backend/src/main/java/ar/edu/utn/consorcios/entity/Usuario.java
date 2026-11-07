@@ -1,6 +1,8 @@
 package ar.edu.utn.consorcios.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -11,7 +13,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -50,8 +53,11 @@ public class Usuario {
     @JoinColumn(name = "PersonaId")
     private Persona persona;
 
-    /** Solo se completa para ADMINISTRADOR_CONSORCIO. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ConsorcioId")
-    private Consorcio consorcio;
+    /** Consorcios que administra. Solo aplica a ADMINISTRADOR_CONSORCIO; puede tener varios o ninguno. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "UsuariosConsorcios",
+            joinColumns = @JoinColumn(name = "UsuarioId"),
+            inverseJoinColumns = @JoinColumn(name = "ConsorcioId"))
+    private Set<Consorcio> consorcios = new HashSet<>();
 }

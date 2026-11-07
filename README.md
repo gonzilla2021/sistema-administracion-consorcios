@@ -65,6 +65,7 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 - [Esquema de base de datos](database/schema-consorcios.sql).
 - [Diagrama de clases del modelo de dominio](database/uml-modelo-dominio.md).
 - [Guía de instalación y ejecución local](docs/instalacion.md).
+- [Plan B para la defensa: entorno local sin Supabase ni internet](docs/plan-b-defensa.md).
 
 ## Roles y acceso a la información
 
