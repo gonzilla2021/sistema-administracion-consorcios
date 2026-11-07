@@ -104,6 +104,17 @@ export interface LiquidacionUnidad {
   visibleParaInquilino: boolean
 }
 
+/** GET /api/consorcios/{id}/pagos y PATCH .../pagar | .../revertir (el id es el del detalle de liquidación) */
+export interface Pago {
+  id: string
+  liquidacionId: string
+  unidadFuncionalId: string
+  identificadorUnidad: string
+  importe: number
+  estadoPago: EstadoPago
+  fechaPago: string | null
+}
+
 export const moneda = (n: number) => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
 
 export const ROL_LEGIBLE: Record<Rol, string> = {

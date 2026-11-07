@@ -78,6 +78,9 @@ export default function Layout() {
                 <NavLink to="/liquidaciones" className={enlace}>
                   Liquidaciones
                 </NavLink>
+                <NavLink to="/pagos" className={enlace}>
+                  Pagos
+                </NavLink>
               </>
             )}
             {esSuper && (
