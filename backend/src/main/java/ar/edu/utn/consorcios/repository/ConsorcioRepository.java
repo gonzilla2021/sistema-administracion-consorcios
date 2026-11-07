@@ -1,5 +1,6 @@
 package ar.edu.utn.consorcios.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,7 +12,11 @@ import ar.edu.utn.consorcios.entity.Consorcio;
 
 public interface ConsorcioRepository extends JpaRepository<Consorcio, UUID> {
 
-    /** Consorcio que administra el usuario, si tiene uno asignado. */
-    @Query("select u.consorcio from Usuario u where lower(u.email) = lower(:email) and u.consorcio is not null")
-    Optional<Consorcio> findAdministradoPor(@Param("email") String email);
+    /** Consorcios que administra el usuario. */
+    @Query("select c from Usuario u join u.consorcios c where lower(u.email) = lower(:email) order by c.nombre")
+    List<Consorcio> findAdministradosPor(@Param("email") String email);
+
+    /** El consorcio indicado, solo si el usuario lo administra (una sola consulta). */
+    @Query("select c from Usuario u join u.consorcios c where lower(u.email) = lower(:email) and c.id = :id")
+    Optional<Consorcio> findAdministradoPor(@Param("email") String email, @Param("id") UUID id);
 }

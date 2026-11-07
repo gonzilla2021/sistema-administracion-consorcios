@@ -52,7 +52,7 @@ export interface Usuario {
   activo: boolean
   fechaAlta: string
   personaId: string | null
-  consorcioId: string | null
+  consorcioIds: string[]
 }
 
 /** POST /api/usuarios */
@@ -60,7 +60,7 @@ export interface UsuarioInput {
   email: string
   password: string
   rol: Rol
-  consorcioId?: string | null
+  consorcioIds?: string[]
 }
 
 /** GET /api/consorcios/{id}/gastos */

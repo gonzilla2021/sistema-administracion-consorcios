@@ -19,5 +19,8 @@ export const listarUsuarios = () => api<Usuario[]>('/api/usuarios')
 export const crearUsuario = (datos: UsuarioInput) =>
   api<Usuario>('/api/usuarios', { method: 'POST', body: JSON.stringify(datos) })
 
+export const asignarConsorciosUsuario = (id: string, consorcioIds: string[]) =>
+  api<Usuario>(`/api/usuarios/${id}`, { method: 'PATCH', body: JSON.stringify({ consorcioIds }) })
+
 export const cambiarEstadoUsuario = (id: string, activo: boolean) =>
   api<Usuario>(`/api/usuarios/${id}`, { method: 'PATCH', body: JSON.stringify({ activo }) })

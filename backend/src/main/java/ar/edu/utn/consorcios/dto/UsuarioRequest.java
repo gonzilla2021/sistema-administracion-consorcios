@@ -1,5 +1,6 @@
 package ar.edu.utn.consorcios.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 import ar.edu.utn.consorcios.entity.Rol;
@@ -13,6 +14,6 @@ public record UsuarioRequest(
         @NotBlank @Size(min = 8, max = 72) String password,
         @NotNull Rol rol,
         UUID personaId,
-        /** Obligatorio para ADMINISTRADOR_CONSORCIO; no admitido para el resto. */
-        UUID consorcioId) {
+        /** Solo para ADMINISTRADOR_CONSORCIO (puede quedar vacío); no admitido para el resto. */
+        List<UUID> consorcioIds) {
 }

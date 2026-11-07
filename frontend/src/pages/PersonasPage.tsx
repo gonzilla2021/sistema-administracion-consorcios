@@ -87,10 +87,13 @@ export default function PersonasPage() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500">Mostrando {visibles.length} de {personas.data?.length ?? 0} personas</p>
+        <p className="text-sm text-slate-500">
+          {personas.data ? `Mostrando ${visibles.length} de ${personas.data.length} personas` : ' '}
+        </p>
         <div className="flex gap-2">
           <button
             className="btn-secondary"
+            disabled={!personas.data}
             onClick={() =>
               exportarExcel(
                 'personas.xlsx',
@@ -110,6 +113,7 @@ export default function PersonasPage() {
           </button>
           <button
             className="btn-secondary"
+            disabled={!personas.data}
             onClick={() =>
               exportarCsv(
                 'personas.csv',
