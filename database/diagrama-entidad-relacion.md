@@ -5,7 +5,7 @@
 **Entrega:** Segunda entrega  
 **Base de datos:** PostgreSQL · esquema `dbo`
 
-El diagrama representa las ocho tablas del archivo `schema-consorcios.sql`. Incluye campos, tipos de datos, claves y relaciones. Los índices y las claves compuestas se detallan debajo.
+El diagrama representa las nueve tablas del archivo `schema-consorcios.sql`. Incluye campos, tipos de datos, claves y relaciones. Los índices y las claves compuestas se detallan debajo.
 
 ## 1. Diagrama
 
