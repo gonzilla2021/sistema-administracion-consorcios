@@ -15,8 +15,31 @@ Sistema web para centralizar la administración de consorcios, unidades funciona
 
 ## Estado del proyecto
 
-Proyecto en etapa de propuesta y planificación correspondiente a la primera entrega del Trabajo Final Integrador.
-Proyecto en etapa de diseño y documentación correspondiente a la segunda entrega del Trabajo Final Integrador.
+El proyecto cuenta con backend y frontend implementados, pruebas automatizadas del backend y un despliegue del backend en Railway. La publicación del frontend y la validación integral del sistema siguen pendientes.
+
+## Pruebas y despliegue
+
+### Pruebas automatizadas del backend
+
+Se implementaron 48 pruebas que cubren autenticación, gastos,
+liquidaciones, pagos, personas, vinculaciones y controles de acceso.
+
+Resultado de la ejecución local: 48 pruebas, 0 fallas,
+0 errores y 0 omitidas.
+
+Las pruebas usan datos simulados y no requieren conexión a Supabase.
+Este resultado corresponde a los casos implementados y no representa
+una validación completa del sistema.
+
+### Backend publicado
+
+- Alojamiento: Railway.
+- API: https://sistema-administracion-consorcios-production.up.railway.app
+- Estado del servicio: https://sistema-administracion-consorcios-production.up.railway.app/api/health
+- Base de datos: PostgreSQL en Supabase.
+- Verificación del despliegue: backend y base de datos en estado UP;
+  consulta a /api/usuarios sin autenticación responde HTTP 401.
+
 
 ## Problema que aborda
 
