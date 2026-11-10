@@ -7,6 +7,7 @@ import ConsorciosPage from './pages/ConsorciosPage'
 import UnidadesPage from './pages/UnidadesPage'
 import GastosPage from './pages/GastosPage'
 import LiquidacionesPage from './pages/LiquidacionesPage'
+import MisLiquidacionesPage from './pages/MisLiquidacionesPage'
 import PagosPage from './pages/PagosPage'
 import PersonasPage from './pages/PersonasPage'
 import VinculacionesPage from './pages/VinculacionesPage'
@@ -15,6 +16,7 @@ import CuentaPage from './pages/CuentaPage'
 import type { Rol } from './types'
 
 const GESTION: Rol[] = ['SUPERADMINISTRADOR', 'ADMINISTRADOR_CONSORCIO']
+const RESIDENTES: Rol[] = ['PROPIETARIO', 'INQUILINO']
 
 export default function App() {
   return (
@@ -58,6 +60,14 @@ export default function App() {
           element={
             <RutaProtegida roles={GESTION}>
               <LiquidacionesPage />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/mis-liquidaciones"
+          element={
+            <RutaProtegida roles={RESIDENTES}>
+              <MisLiquidacionesPage />
             </RutaProtegida>
           }
         />
