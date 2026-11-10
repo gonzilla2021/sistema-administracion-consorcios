@@ -15,7 +15,11 @@ Sistema web para centralizar la administración de consorcios, unidades funciona
 
 ## Estado del proyecto
 
-El proyecto cuenta con backend y frontend implementados, pruebas automatizadas del backend y un despliegue del backend en Railway. La publicación del frontend y la validación integral del sistema siguen pendientes.
+El proyecto cuenta con backend y frontend implementados y publicados:
+frontend en Netlify, backend en Railway y base de datos PostgreSQL
+en Supabase. La conexión entre frontend y backend fue confirmada.
+Se dispone de 48 pruebas automatizadas del backend aprobadas.
+La validación integral del sistema sigue pendiente.
 
 ## Pruebas y despliegue
 
@@ -30,6 +34,13 @@ Resultado de la ejecución local: 48 pruebas, 0 fallas,
 Las pruebas usan datos simulados y no requieren conexión a Supabase.
 Este resultado corresponde a los casos implementados y no representa
 una validación completa del sistema.
+
+### Aplicación publicada
+
+- Frontend: https://administracion-consorcios.netlify.app/login
+- Alojamiento del frontend: Netlify.
+- Backend: Railway.
+- Base de datos: PostgreSQL en Supabase.
 
 ### Backend publicado
 
@@ -75,7 +86,8 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Se evalu
 - Backend: Java y Spring Boot.
 - Base de datos: PostgreSQL.
 - Seguridad: Spring Security y JWT.
-- Despliegue: Vercel o Netlify para el frontend y un servicio PaaS compatible con Spring Boot para el backend (Railway). PostgreSQL se alojará en un servicio administrado con plan gratuito (SupaBase).
+- Despliegue: Netlify para el frontend, Railway para el backend
+  y Supabase para PostgreSQL.
 - Versionado: Git y GitHub.
 
 
