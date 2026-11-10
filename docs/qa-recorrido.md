@@ -1,10 +1,11 @@
 # QA: recorrido funcional del sistema
 
 **Proyecto:** Sistema de Administración de Consorcios — Grupo 128
-**Fecha:** 7 de noviembre de 2026
-**Tipo de prueba:** manual, de caja negra, en navegador, contra el backend y la base de Supabase.
+**Fecha del recorrido manual:** 7 de noviembre de 2026
+**Actualización de pruebas automatizadas:** 8 de noviembre de 2026
+**Tipo de prueba:** recorrido manual de caja negra en navegador contra el backend y Supabase (secciones 1 a 6), complementado con pruebas automatizadas del backend sin conexión a la base de datos (sección 7).
 
-Este documento deja constancia de qué se probó, con qué resultado y qué defectos aparecieron. Sirve como evidencia de validación para el informe final y como lista de lo que falta cubrir con pruebas automáticas.
+Este documento deja constancia de qué se probó, con qué resultado y qué defectos aparecieron. Sirve como evidencia de validación para el informe final y como registro de la cobertura automatizada y de las verificaciones pendientes.
 
 ## 1. Entorno y datos
 
@@ -120,13 +121,13 @@ Estados: **OK** = el resultado obtenido coincide con el esperado. **DEFECTO** = 
 
 Después de la prueba, la unidad seguía con 3 vinculaciones (no se agregó ninguna). Cambios en `VinculacionUnidadService.crear` y `LiquidacionService.generar`.
 
-## 5. Alcance no cubierto
+## 5. Alcance no cubierto por el recorrido manual
 
 - **Exportaciones a Excel y CSV:** no se probaron (descargan archivos).
 - **Cuentas de propietario e inquilino:** el backend expone `GET /api/mi-cuenta/liquidaciones`, pero la pantalla no existe todavía; no hay nada que recorrer.
-- **Reparto proporcional con coeficientes distintos:** las unidades de Demo 2 tienen coeficientes casi iguales, así que el caso LI-02 prueba la suma exacta pero no la proporcionalidad. Hay que cubrirlo con una prueba automática con coeficientes desiguales.
+- **Reparto proporcional con coeficientes distintos:** las unidades de Demo 2 tienen coeficientes casi iguales, así que el caso LI-02 prueba la suma exacta pero no la proporcionalidad. Este caso ya se cubrió mediante una prueba automática con coeficientes 25 y 75 (sección 7); no se verificó de punta a punta en el navegador.
 - **Pruebas de concurrencia, carga y accesibilidad.**
-- **Pruebas automáticas:** `backend/src/test` está vacío. Los casos de las secciones 3.1, 3.5, 3.6 y 3.7 son los candidatos para automatizar primero.
+- **Cobertura automatizada:** se agregaron 48 pruebas del backend, detalladas en la sección 7. Complementan el recorrido manual y no equivalen a una prueba integral del sistema.
 
 ## 6. Limpieza de los datos de prueba
 
@@ -145,3 +146,36 @@ delete from dbo.vinculacionesunidad where personaid in (select id from dbo.perso
 delete from dbo.personas where dni in ('90000001','90000002') and email like 'qa.%@demo.test';
 commit;
 ```
+
+## 7. Pruebas automatizadas del backend
+
+El 8 de noviembre de 2026 se ejecutaron localmente 48 pruebas con JUnit 5, Mockito y Spring Security Test. Los archivos se encuentran en `backend/src/test/java/ar/edu/utn/consorcios/service/`.
+
+| Clase | Casos | Cobertura principal |
+|---|---:|---|
+| `PagoServiceTest` | 8 | Registro y reversión, pago duplicado, liquidación abierta, registro inexistente y acceso por consorcio |
+| `LiquidacionServiceTest` | 7 | Reparto con coeficientes desiguales, ajuste de centavos, período duplicado o sin gastos, unidades y coeficientes inválidos |
+| `PersonaServiceTest` | 3 | Alta y normalización, DNI duplicado dentro del consorcio y consulta de persona de otro consorcio |
+| `VinculacionUnidadServiceTest` | 8 | Fechas inválidas, pertenencia al consorcio y superposición de períodos, incluidos sus extremos |
+| `ConsorcioServiceTest` | 6 | Acceso del superadministrador, administrador asignado y restricciones para otros usuarios |
+| `PagoPermisosTest` | 4 | Seguridad de método de Spring sobre la consulta de pagos: permite administradores y rechaza propietarios e inquilinos |
+| `AuthServiceTest` | 4 | Login válido, contraseña incorrecta, usuario inexistente y usuario inactivo |
+| `GastoServiceTest` | 8 | Alta, modificación y eliminación, períodos cerrados y pertenencia al consorcio |
+| **Total** | **48** | |
+
+**Resultado de la ejecución local:** 48 pruebas ejecutadas, 0 fallas, 0 errores y 0 omitidas; `BUILD SUCCESS`.
+
+Se ejecutan desde la carpeta `backend`:
+
+```powershell
+.\mvnw.cmd test
+```
+
+### 7.1 Entorno y límites
+
+- Los repositorios se simulan con Mockito; las pruebas no conectan con Supabase ni modifican datos compartidos.
+- Las pruebas de autenticación usan BCrypt real con credenciales ficticias; la emisión del token JWT está simulada.
+- `PagoPermisosTest` utiliza el proxy real de seguridad de métodos de Spring. No ejecuta solicitudes HTTP ni el filtro JWT.
+- No se verifican aquí las consultas JPA, las restricciones de PostgreSQL, las transacciones contra una base real, la firma o vencimiento de JWT ni la configuración CORS.
+- Los permisos de método se comprueban sobre la consulta de pagos; esto no demuestra la protección de todos los endpoints.
+- Siguen pendientes las pruebas integrales entre frontend, API y base de datos, así como concurrencia y carga. Los 31 casos manuales de la sección 2 y los 48 casos automáticos son ejecuciones diferentes y no deben interpretarse como una única cobertura completa.
