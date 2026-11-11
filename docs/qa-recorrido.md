@@ -179,3 +179,21 @@ Se ejecutan desde la carpeta `backend`:
 - No se verifican aquí las consultas JPA, las restricciones de PostgreSQL, las transacciones contra una base real, la firma o vencimiento de JWT ni la configuración CORS.
 - Los permisos de método se comprueban sobre la consulta de pagos; esto no demuestra la protección de todos los endpoints.
 - Siguen pendientes las pruebas integrales entre frontend, API y base de datos, así como concurrencia y carga. Los 31 casos manuales de la sección 2 y los 48 casos automáticos son ejecuciones diferentes y no deben interpretarse como una única cobertura completa.
+
+## 8. Entorno publicado
+
+Actualización: 10 de noviembre de 2026.
+
+| Componente | Servicio | Dirección |
+|---|---|---|
+| Frontend | Netlify | https://administracion-consorcios.netlify.app/login |
+| Backend | Railway | https://sistema-administracion-consorcios-production.up.railway.app |
+| Estado del backend | Railway | https://sistema-administracion-consorcios-production.up.railway.app/api/health |
+| Base de datos | Supabase | PostgreSQL |
+
+Se confirmó la conexión entre el frontend publicado y el backend.
+Previamente se verificó que /api/health devuelve backend y base de
+datos en estado UP, y que /api/usuarios sin autenticación responde 401.
+
+Estas comprobaciones no equivalen a repetir el recorrido funcional
+completo sobre el entorno publicado.
