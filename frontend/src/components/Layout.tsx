@@ -39,6 +39,7 @@ export default function Layout() {
   const [abierto, setAbierto] = useState(false)
   const esSuper = usuario?.rol === 'SUPERADMINISTRADOR'
   const gestiona = esSuper || usuario?.rol === 'ADMINISTRADOR_CONSORCIO'
+  const esResidente = usuario?.rol === 'PROPIETARIO' || usuario?.rol === 'INQUILINO'
 
   const salir = () => {
     logout()
@@ -64,6 +65,11 @@ export default function Layout() {
             <NavLink to="/" end className={enlace}>
               Tablero
             </NavLink>
+            {esResidente && (
+              <NavLink to="/mis-liquidaciones" className={enlace}>
+                Mis liquidaciones
+              </NavLink>
+            )}
             {gestiona && (
               <>
                 <NavLink to="/consorcios" className={enlace}>

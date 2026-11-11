@@ -104,6 +104,18 @@ export interface LiquidacionUnidad {
   visibleParaInquilino: boolean
 }
 
+/** GET /api/mi-cuenta/liquidaciones */
+export interface MiLiquidacion {
+  liquidacionId: string
+  unidadFuncionalId: string
+  unidad: string
+  periodo: string
+  estadoLiquidacion: EstadoLiquidacion
+  importe: number
+  estadoPago: EstadoPago
+  fechaPago: string | null
+}
+
 /** GET /api/consorcios/{id}/pagos y PATCH .../pagar | .../revertir (el id es el del detalle de liquidación) */
 export interface Pago {
   id: string
@@ -154,6 +166,7 @@ export interface VinculacionInput {
   fechaInicio: string
   fechaFin?: string | null
 }
+
 
 export const moneda = (n: number) => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
 
