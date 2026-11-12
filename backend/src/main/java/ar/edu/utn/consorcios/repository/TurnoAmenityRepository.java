@@ -23,4 +23,15 @@ public interface TurnoAmenityRepository
         UUID id,
         UUID amenityId
     );
+
+    boolean existsByAmenityIdAndNombreIgnoreCase(
+        UUID amenityId,
+        String nombre
+    );
+
+    boolean existsByAmenityIdAndNombreIgnoreCaseAndIdNot(
+        UUID amenityId,
+        String nombre,
+        UUID id
+    );
 }

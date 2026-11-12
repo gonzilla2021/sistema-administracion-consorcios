@@ -12,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(
     name = "reservas_amenity",
+    schema = "dbo",
     indexes = {
         @Index(
             name = "idx_reserva_amenity_fecha",

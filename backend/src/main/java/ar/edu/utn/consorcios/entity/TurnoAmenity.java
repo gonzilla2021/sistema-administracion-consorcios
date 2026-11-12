@@ -11,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(
     name = "turnos_amenity",
+    schema = "dbo",
     uniqueConstraints = {
         @UniqueConstraint(
             name = "uk_turno_amenity_nombre",
