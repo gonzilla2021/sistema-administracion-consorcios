@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BloqueoAmenityRepository
@@ -17,9 +18,13 @@ public interface BloqueoAmenityRepository
     );
 
     List<BloqueoAmenity>
-        findByAmenityIdAndFechaBetweenAndActivoTrueOrderByFechaAsc(
-            UUID amenityId,
-            LocalDate desde,
-            LocalDate hasta
+        findByAmenityIdOrderByFechaDesc(
+            UUID amenityId
+        );
+
+    Optional<BloqueoAmenity>
+        findByIdAndAmenityId(
+            UUID bloqueoId,
+            UUID amenityId
         );
 }
