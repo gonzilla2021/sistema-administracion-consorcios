@@ -10,7 +10,13 @@ import java.util.UUID;
 public interface AmenityRepository
         extends JpaRepository<Amenity, UUID> {
 
-    List<Amenity> findByConsorcioIdOrderByNombre(UUID consorcioId);
+    List<Amenity> findByConsorcioIdOrderByNombre(
+        UUID consorcioId
+    );
+
+    List<Amenity> findByConsorcioIdInAndActivoTrueOrderByNombre(
+        List<UUID> consorcioIds
+    );
 
     Optional<Amenity> findByIdAndConsorcioId(
         UUID id,
@@ -20,5 +26,11 @@ public interface AmenityRepository
     boolean existsByConsorcioIdAndNombreIgnoreCase(
         UUID consorcioId,
         String nombre
+    );
+
+    boolean existsByConsorcioIdAndNombreIgnoreCaseAndIdNot(
+        UUID consorcioId,
+        String nombre,
+        UUID id
     );
 }

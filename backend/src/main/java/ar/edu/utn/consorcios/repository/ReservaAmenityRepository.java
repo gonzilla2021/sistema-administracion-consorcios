@@ -27,6 +27,14 @@ public interface ReservaAmenityRepository
         );
 
     List<ReservaAmenity>
+        findByAmenityIdAndFechaBetweenAndEstadoOrderByFechaAsc(
+            UUID amenityId,
+            LocalDate desde,
+            LocalDate hasta,
+            EstadoReservaAmenity estado
+        );
+
+    List<ReservaAmenity>
         findByPersonaIdOrderByFechaDesc(
             UUID personaId
         );

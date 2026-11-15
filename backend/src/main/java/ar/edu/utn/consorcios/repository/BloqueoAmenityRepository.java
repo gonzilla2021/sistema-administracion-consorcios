@@ -22,6 +22,13 @@ public interface BloqueoAmenityRepository
             UUID amenityId
         );
 
+    List<BloqueoAmenity>
+        findByAmenityIdAndFechaBetweenAndActivoTrueOrderByFechaAsc(
+            UUID amenityId,
+            LocalDate desde,
+            LocalDate hasta
+        );
+
     Optional<BloqueoAmenity>
         findByIdAndAmenityId(
             UUID bloqueoId,
