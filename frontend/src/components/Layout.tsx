@@ -93,6 +93,9 @@ export default function Layout() {
                 <NavLink to="/personas" className={enlace}>
                   Personas
                 </NavLink>
+                <NavLink to="/amenities" className={enlace}>
+                  Amenities
+                </NavLink>
               </>
             )}
             {esSuper && (

@@ -13,6 +13,7 @@ import PersonasPage from './pages/PersonasPage'
 import VinculacionesPage from './pages/VinculacionesPage'
 import UsuariosPage from './pages/UsuariosPage'
 import CuentaPage from './pages/CuentaPage'
+import AmenitiesPage from './pages/AmenitiesPage'
 import type { Rol } from './types'
 
 const GESTION: Rol[] = ['SUPERADMINISTRADOR', 'ADMINISTRADOR_CONSORCIO']
@@ -60,6 +61,14 @@ export default function App() {
           element={
             <RutaProtegida roles={GESTION}>
               <LiquidacionesPage />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/amenities"
+          element={
+            <RutaProtegida roles={GESTION}>
+              <AmenitiesPage />
             </RutaProtegida>
           }
         />
