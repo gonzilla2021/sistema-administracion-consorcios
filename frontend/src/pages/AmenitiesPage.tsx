@@ -1,11 +1,17 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { Cargando, ErrorCarga } from '../components/Estados'
+
+import AmenityForm from '../components/amenities/AmenityForm'
+import AmenityList from '../components/amenities/AmenityList'
+import ReservasSection from '../components/amenities/ReservasSection'
+import TurnoForm from '../components/amenities/TurnoForm'
+import TurnoList from '../components/amenities/TurnoList'
 import { useConsorcioActivo } from '../components/ConsorcioActivo'
+import { ApiError } from '../services/api'
 import {
   actualizarAmenity,
   actualizarTurnoAmenity,
@@ -14,9 +20,9 @@ import {
   crearAmenity,
   crearTurnoAmenity,
   listarAmenities,
+  listarReservasAmenity,
   listarTurnosAmenity,
 } from '../services/amenities'
-import { ApiError } from '../services/api'
 import type {
   Amenity,
   AmenityInput,
@@ -32,266 +38,265 @@ const AMENITY_INICIAL: AmenityInput = {
 
 const TURNO_INICIAL: TurnoAmenityInput = {
   nombre: '',
-  horaInicio: '',
-  horaFin: '',
+  horaInicio: '11:00',
+  horaFin: '16:00',
   activo: true,
+}
+
+const fechaLocal = (fecha: Date) => {
+  const anio = fecha.getFullYear()
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+  const dia = String(fecha.getDate()).padStart(2, '0')
+
+  return `${anio}-${mes}-${dia}`
+}
+
+const hoy = () => fechaLocal(new Date())
+
+const dentroDeTreintaDias = () => {
+  const fecha = new Date()
+  fecha.setDate(fecha.getDate() + 30)
+  return fechaLocal(fecha)
 }
 
 export default function AmenitiesPage() {
   const { activo } = useConsorcioActivo()
   const queryClient = useQueryClient()
-
   const consorcioId = activo?.id ?? ''
 
-  const [amenitySeleccionadoId, setAmenitySeleccionadoId] =
+  const [amenityId, setAmenityId] =
     useState<string | null>(null)
-
-  const [formAmenity, setFormAmenity] =
-    useState<AmenityInput>(AMENITY_INICIAL)
 
   const [amenityEditandoId, setAmenityEditandoId] =
     useState<string | null>(null)
 
-  const [formTurno, setFormTurno] =
-    useState<TurnoAmenityInput>(TURNO_INICIAL)
-
   const [turnoEditandoId, setTurnoEditandoId] =
     useState<string | null>(null)
+
+  const [amenityForm, setAmenityForm] =
+    useState(AMENITY_INICIAL)
+
+  const [turnoForm, setTurnoForm] =
+    useState(TURNO_INICIAL)
+
+  const [desde, setDesde] = useState(hoy)
+  const [hasta, setHasta] =
+    useState(dentroDeTreintaDias)
 
   const [mensaje, setMensaje] = useState('')
   const [error, setError] = useState('')
 
-  const amenities = useQuery({
+  const amenitiesQuery = useQuery({
     queryKey: ['amenities', consorcioId],
     queryFn: () => listarAmenities(consorcioId),
     enabled: Boolean(consorcioId),
   })
 
   const amenitySeleccionado =
-    amenities.data?.find(
-      (amenity) => amenity.id === amenitySeleccionadoId,
+    amenitiesQuery.data?.find(
+      (amenity) => amenity.id === amenityId,
     ) ?? null
 
-  useEffect(() => {
-    if (
-      amenities.data?.length &&
-      !amenitySeleccionadoId
-    ) {
-      setAmenitySeleccionadoId(amenities.data[0].id)
-    }
-  }, [amenities.data, amenitySeleccionadoId])
+  const turnosQuery = useQuery({
+    queryKey: ['turnos-amenity', consorcioId, amenityId],
+    queryFn: () =>
+      listarTurnosAmenity(consorcioId, amenityId!),
+    enabled: Boolean(consorcioId && amenityId),
+  })
+
+  const errorRango = useMemo(
+    () => validarRango(desde, hasta),
+    [desde, hasta],
+  )
+
+  const reservasQuery = useQuery({
+    queryKey: [
+      'reservas-amenity',
+      consorcioId,
+      amenityId,
+      desde,
+      hasta,
+    ],
+    queryFn: () =>
+      listarReservasAmenity(
+        consorcioId,
+        amenityId!,
+        desde,
+        hasta,
+      ),
+    enabled: Boolean(
+      consorcioId &&
+        amenityId &&
+        desde &&
+        hasta &&
+        !errorRango,
+    ),
+  })
 
   useEffect(() => {
-    setAmenitySeleccionadoId(null)
+    const primerAmenity = amenitiesQuery.data?.[0]
+
+    if (primerAmenity && !amenityId) {
+      setAmenityId(primerAmenity.id)
+    }
+  }, [amenitiesQuery.data, amenityId])
+
+  useEffect(() => {
+    setAmenityId(null)
     setAmenityEditandoId(null)
     setTurnoEditandoId(null)
-    setFormAmenity(AMENITY_INICIAL)
-    setFormTurno(TURNO_INICIAL)
+    setAmenityForm(AMENITY_INICIAL)
+    setTurnoForm(TURNO_INICIAL)
+    setDesde(hoy())
+    setHasta(dentroDeTreintaDias())
     setMensaje('')
     setError('')
   }, [consorcioId])
 
-  const turnos = useQuery({
-    queryKey: [
-      'turnos-amenity',
-      consorcioId,
-      amenitySeleccionadoId,
-    ],
-    queryFn: () =>
-      listarTurnosAmenity(
-        consorcioId,
-        amenitySeleccionadoId!,
-      ),
-    enabled: Boolean(
-      consorcioId && amenitySeleccionadoId,
-    ),
-  })
+  const guardarAmenity = useMutation({
+    mutationFn: () =>
+      amenityEditandoId
+        ? actualizarAmenity(
+            consorcioId,
+            amenityEditandoId,
+            amenityForm,
+          )
+        : crearAmenity(consorcioId, amenityForm),
 
-  const refrescarAmenities = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ['amenities', consorcioId],
-    })
-  }
-
-  const refrescarTurnos = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: [
-        'turnos-amenity',
-        consorcioId,
-        amenitySeleccionadoId,
-      ],
-    })
-  }
-
-  const mutacionAmenity = useMutation({
-    mutationFn: async () => {
-      if (amenityEditandoId) {
-        return actualizarAmenity(
-          consorcioId,
-          amenityEditandoId,
-          formAmenity,
-        )
-      }
-
-      return crearAmenity(consorcioId, formAmenity)
-    },
     onSuccess: async (amenity) => {
-      await refrescarAmenities()
+      await invalidar(['amenities', consorcioId])
 
-      setAmenitySeleccionadoId(amenity.id)
+      setAmenityId(amenity.id)
       setAmenityEditandoId(null)
-      setFormAmenity(AMENITY_INICIAL)
-      setError('')
-      setMensaje(
-        amenityEditandoId
-          ? 'Amenity actualizado correctamente.'
-          : 'Amenity creado correctamente.',
-      )
+      setAmenityForm(AMENITY_INICIAL)
+      exito('Amenity guardado correctamente.')
     },
-    onError: (errorDesconocido) => {
-      setMensaje('')
-      setError(obtenerMensaje(errorDesconocido))
-    },
+
+    onError: manejarError,
   })
 
-  const mutacionEstadoAmenity = useMutation({
+  const cambiarAmenity = useMutation({
     mutationFn: ({
-      amenityId,
-      activo,
+      id,
+      activo: nuevoEstado,
     }: {
-      amenityId: string
+      id: string
       activo: boolean
     }) =>
       cambiarEstadoAmenity(
         consorcioId,
-        amenityId,
-        activo,
+        id,
+        nuevoEstado,
       ),
+
     onSuccess: async () => {
-      await refrescarAmenities()
-      setError('')
-      setMensaje('Estado del amenity actualizado.')
+      await invalidar(['amenities', consorcioId])
+      exito('Estado del amenity actualizado.')
     },
-    onError: (errorDesconocido) => {
-      setMensaje('')
-      setError(obtenerMensaje(errorDesconocido))
-    },
+
+    onError: manejarError,
   })
 
-  const mutacionTurno = useMutation({
-    mutationFn: async () => {
-      if (!amenitySeleccionadoId) {
+  const guardarTurno = useMutation({
+    mutationFn: () => {
+      if (!amenityId) {
         throw new Error('Seleccioná un amenity.')
       }
 
-      if (turnoEditandoId) {
-        return actualizarTurnoAmenity(
-          consorcioId,
-          amenitySeleccionadoId,
-          turnoEditandoId,
-          formTurno,
-        )
-      }
-
-      return crearTurnoAmenity(
-        consorcioId,
-        amenitySeleccionadoId,
-        formTurno,
-      )
+      return turnoEditandoId
+        ? actualizarTurnoAmenity(
+            consorcioId,
+            amenityId,
+            turnoEditandoId,
+            turnoForm,
+          )
+        : crearTurnoAmenity(
+            consorcioId,
+            amenityId,
+            turnoForm,
+          )
     },
+
     onSuccess: async () => {
-      await refrescarTurnos()
+      await invalidar([
+        'turnos-amenity',
+        consorcioId,
+        amenityId,
+      ])
 
       setTurnoEditandoId(null)
-      setFormTurno(TURNO_INICIAL)
-      setError('')
-      setMensaje(
-        turnoEditandoId
-          ? 'Turno actualizado correctamente.'
-          : 'Turno creado correctamente.',
-      )
+      setTurnoForm(TURNO_INICIAL)
+      exito('Turno guardado correctamente.')
     },
-    onError: (errorDesconocido) => {
-      setMensaje('')
-      setError(obtenerMensaje(errorDesconocido))
-    },
+
+    onError: manejarError,
   })
 
-  const mutacionEstadoTurno = useMutation({
+  const cambiarTurno = useMutation({
     mutationFn: ({
-      turnoId,
-      activo,
+      id,
+      activo: nuevoEstado,
     }: {
-      turnoId: string
+      id: string
       activo: boolean
     }) => {
-      if (!amenitySeleccionadoId) {
+      if (!amenityId) {
         throw new Error('Seleccioná un amenity.')
       }
 
       return cambiarEstadoTurnoAmenity(
         consorcioId,
-        amenitySeleccionadoId,
-        turnoId,
-        activo,
+        amenityId,
+        id,
+        nuevoEstado,
       )
     },
+
     onSuccess: async () => {
-      await refrescarTurnos()
-      setError('')
-      setMensaje('Estado del turno actualizado.')
+      await invalidar([
+        'turnos-amenity',
+        consorcioId,
+        amenityId,
+      ])
+
+      exito('Estado del turno actualizado.')
     },
-    onError: (errorDesconocido) => {
-      setMensaje('')
-      setError(obtenerMensaje(errorDesconocido))
-    },
+
+    onError: manejarError,
   })
 
-  const guardarAmenity = (event: FormEvent) => {
-    event.preventDefault()
-    setMensaje('')
-    setError('')
-    mutacionAmenity.mutate()
+  function invalidar(queryKey: unknown[]) {
+    return queryClient.invalidateQueries({ queryKey })
   }
 
-  const guardarTurno = (event: FormEvent) => {
-    event.preventDefault()
-    setMensaje('')
+  function exito(texto: string) {
     setError('')
-    mutacionTurno.mutate()
+    setMensaje(texto)
   }
 
-  const editarAmenity = (amenity: Amenity) => {
+  function manejarError(errorDesconocido: unknown) {
+    setMensaje('')
+    setError(obtenerMensaje(errorDesconocido))
+  }
+
+  function editarAmenity(amenity: Amenity) {
+    setAmenityId(amenity.id)
     setAmenityEditandoId(amenity.id)
-    setFormAmenity({
+    setAmenityForm({
       nombre: amenity.nombre,
       descripcion: amenity.descripcion ?? '',
       activo: amenity.activo,
     })
-    setMensaje('')
-    setError('')
   }
 
-  const editarTurno = (turno: TurnoAmenity) => {
+  function editarTurno(turno: TurnoAmenity) {
     setTurnoEditandoId(turno.id)
-    setFormTurno({
+    setTurnoForm({
       nombre: turno.nombre,
       horaInicio: turno.horaInicio,
       horaFin: turno.horaFin,
       activo: turno.activo,
     })
-    setMensaje('')
-    setError('')
-  }
-
-  const cancelarEdicionAmenity = () => {
-    setAmenityEditandoId(null)
-    setFormAmenity(AMENITY_INICIAL)
-  }
-
-  const cancelarEdicionTurno = () => {
-    setTurnoEditandoId(null)
-    setFormTurno(TURNO_INICIAL)
   }
 
   if (!activo) {
@@ -305,99 +310,115 @@ export default function AmenitiesPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Amenities
-        </h1>
+        <h1 className="text-2xl font-bold">Amenities</h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          Configurá el SUM, la parrilla y sus turnos para{' '}
+          Configurá amenities y turnos para{' '}
           <strong>{activo.nombre}</strong>.
         </p>
       </header>
 
       {mensaje && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-          {mensaje}
-        </div>
+        <Aviso tipo="exito">{mensaje}</Aviso>
       )}
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {error && <Aviso tipo="error">{error}</Aviso>}
 
       <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
         <section className="space-y-4">
-          <FormularioAmenity
-            datos={formAmenity}
+          <AmenityForm
+            datos={amenityForm}
             editando={Boolean(amenityEditandoId)}
-            guardando={mutacionAmenity.isPending}
-            onChange={setFormAmenity}
-            onSubmit={guardarAmenity}
-            onCancelar={cancelarEdicionAmenity}
+            guardando={guardarAmenity.isPending}
+            onChange={setAmenityForm}
+            onGuardar={() => guardarAmenity.mutate()}
+            onCancelar={() => {
+              setAmenityEditandoId(null)
+              setAmenityForm(AMENITY_INICIAL)
+            }}
           />
 
-          <ListaAmenities
-            cargando={amenities.isLoading}
-            error={amenities.isError}
-            amenities={amenities.data ?? []}
-            seleccionadoId={amenitySeleccionadoId}
-            cambiandoEstado={
-              mutacionEstadoAmenity.isPending
-            }
-            onSeleccionar={setAmenitySeleccionadoId}
+          <AmenityList
+            amenities={amenitiesQuery.data ?? []}
+            seleccionadoId={amenityId}
+            cargando={amenitiesQuery.isLoading}
+            error={amenitiesQuery.isError}
+            cambiandoEstado={cambiarAmenity.isPending}
+            onSeleccionar={setAmenityId}
             onEditar={editarAmenity}
             onCambiarEstado={(amenity) =>
-              mutacionEstadoAmenity.mutate({
-                amenityId: amenity.id,
+              cambiarAmenity.mutate({
+                id: amenity.id,
                 activo: !amenity.activo,
               })
             }
-            onReintentar={() => amenities.refetch()}
+            onReintentar={() => {
+              void amenitiesQuery.refetch()
+            }}
           />
         </section>
 
         <section className="space-y-4">
           {amenitySeleccionado ? (
             <>
-              <EncabezadoAmenity
-                amenity={amenitySeleccionado}
-              />
+              <div className="card p-5">
+                <h2 className="text-xl font-bold">
+                  {amenitySeleccionado.nombre}
+                </h2>
 
-              <FormularioTurno
-                datos={formTurno}
+                <p className="mt-1 text-sm text-slate-500">
+                  {amenitySeleccionado.descripcion ??
+                    'Sin descripción'}
+                </p>
+              </div>
+
+              <TurnoForm
+                datos={turnoForm}
                 editando={Boolean(turnoEditandoId)}
-                guardando={mutacionTurno.isPending}
-                amenityActivo={
-                  amenitySeleccionado.activo
-                }
-                onChange={setFormTurno}
-                onSubmit={guardarTurno}
-                onCancelar={cancelarEdicionTurno}
+                guardando={guardarTurno.isPending}
+                amenityActivo={amenitySeleccionado.activo}
+                onChange={setTurnoForm}
+                onGuardar={() => guardarTurno.mutate()}
+                onCancelar={() => {
+                  setTurnoEditandoId(null)
+                  setTurnoForm(TURNO_INICIAL)
+                }}
               />
 
-              <ListaTurnos
-                cargando={turnos.isLoading}
-                error={turnos.isError}
-                turnos={turnos.data ?? []}
-                cambiandoEstado={
-                  mutacionEstadoTurno.isPending
-                }
+              <TurnoList
+                turnos={turnosQuery.data ?? []}
+                cargando={turnosQuery.isLoading}
+                error={turnosQuery.isError}
+                cambiandoEstado={cambiarTurno.isPending}
                 onEditar={editarTurno}
                 onCambiarEstado={(turno) =>
-                  mutacionEstadoTurno.mutate({
-                    turnoId: turno.id,
+                  cambiarTurno.mutate({
+                    id: turno.id,
                     activo: !turno.activo,
                   })
                 }
-                onReintentar={() => turnos.refetch()}
+                onReintentar={() => {
+                  void turnosQuery.refetch()
+                }}
+              />
+
+              <ReservasSection
+                desde={desde}
+                hasta={hasta}
+                errorRango={errorRango}
+                reservas={reservasQuery.data ?? []}
+                cargando={reservasQuery.isLoading}
+                error={reservasQuery.isError}
+                onCambiarDesde={setDesde}
+                onCambiarHasta={setHasta}
+                onReintentar={() => {
+                  void reservasQuery.refetch()
+                }}
               />
             </>
           ) : (
             <div className="card p-8 text-center text-slate-500">
-              Creá o seleccioná un amenity para configurar sus
-              turnos.
+              Seleccioná o creá un amenity.
             </div>
           )}
         </section>
@@ -406,497 +427,49 @@ export default function AmenitiesPage() {
   )
 }
 
-interface FormularioAmenityProps {
-  datos: AmenityInput
-  editando: boolean
-  guardando: boolean
-  onChange: (datos: AmenityInput) => void
-  onSubmit: (event: FormEvent) => void
-  onCancelar: () => void
-}
-
-function FormularioAmenity({
-  datos,
-  editando,
-  guardando,
-  onChange,
-  onSubmit,
-  onCancelar,
-}: FormularioAmenityProps) {
-  return (
-    <form className="card space-y-4 p-5" onSubmit={onSubmit}>
-      <div>
-        <h2 className="font-semibold text-slate-900">
-          {editando ? 'Editar amenity' : 'Nuevo amenity'}
-        </h2>
-
-        <p className="mt-1 text-xs text-slate-500">
-          Ejemplo: SUM + Parrilla.
-        </p>
-      </div>
-
-      <div>
-        <label className="label" htmlFor="amenity-nombre">
-          Nombre
-        </label>
-
-        <input
-          id="amenity-nombre"
-          className="input"
-          required
-          maxLength={100}
-          value={datos.nombre}
-          onChange={(event) =>
-            onChange({
-              ...datos,
-              nombre: event.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div>
-        <label
-          className="label"
-          htmlFor="amenity-descripcion"
-        >
-          Descripción
-        </label>
-
-        <textarea
-          id="amenity-descripcion"
-          className="input min-h-24"
-          maxLength={500}
-          value={datos.descripcion ?? ''}
-          onChange={(event) =>
-            onChange({
-              ...datos,
-              descripcion: event.target.value,
-            })
-          }
-        />
-      </div>
-
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={datos.activo}
-          onChange={(event) =>
-            onChange({
-              ...datos,
-              activo: event.target.checked,
-            })
-          }
-        />
-        Amenity Activo
-      </label>
-
-      <div className="flex gap-2">
-        <button
-          className="btn-primary"
-          disabled={guardando}
-          type="submit"
-        >
-          {guardando
-            ? 'Guardando...'
-            : editando
-              ? 'Guardar cambios'
-              : 'Crear amenity'}
-        </button>
-
-        {editando && (
-          <button
-            className="btn-secondary"
-            type="button"
-            onClick={onCancelar}
-          >
-            Cancelar
-          </button>
-        )}
-      </div>
-    </form>
-  )
-}
-
-interface ListaAmenitiesProps {
-  cargando: boolean
-  error: boolean
-  amenities: Amenity[]
-  seleccionadoId: string | null
-  cambiandoEstado: boolean
-  onSeleccionar: (id: string) => void
-  onEditar: (amenity: Amenity) => void
-  onCambiarEstado: (amenity: Amenity) => void
-  onReintentar: () => void
-}
-
-function ListaAmenities({
-  cargando,
-  error,
-  amenities,
-  seleccionadoId,
-  cambiandoEstado,
-  onSeleccionar,
-  onEditar,
-  onCambiarEstado,
-  onReintentar,
-}: ListaAmenitiesProps) {
-  if (cargando) {
-    return <Cargando />
-  }
-
-  if (error) {
-    return <ErrorCarga onReintentar={onReintentar} />
-  }
-
-  return (
-    <div className="card overflow-hidden">
-      <div className="border-b border-slate-100 p-4">
-        <h2 className="font-semibold">Amenities configurados</h2>
-      </div>
-
-      <div className="divide-y divide-slate-100">
-        {amenities.map((amenity) => (
-          <article
-            key={amenity.id}
-            className={`space-y-3 p-4 ${
-              seleccionadoId === amenity.id
-                ? 'bg-blue-50'
-                : ''
-            }`}
-          >
-            <button
-              className="w-full text-left"
-              type="button"
-              onClick={() => onSeleccionar(amenity.id)}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-slate-900">
-                    {amenity.nombre}
-                  </p>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    {amenity.descripcion || 'Sin descripción'}
-                  </p>
-                </div>
-
-                <EstadoActivo activo={amenity.activo} />
-              </div>
-            </button>
-
-            <div className="flex gap-2">
-              <button
-                className="btn-secondary"
-                type="button"
-                onClick={() => onEditar(amenity)}
-              >
-                Editar
-              </button>
-
-              <button
-                className="btn-secondary"
-                disabled={cambiandoEstado}
-                type="button"
-                onClick={() => onCambiarEstado(amenity)}
-              >
-                {amenity.activo ? 'Desactivar' : 'Activar'}
-              </button>
-            </div>
-          </article>
-        ))}
-
-        {amenities.length === 0 && (
-          <p className="p-5 text-sm text-slate-500">
-            Este consorcio todavía no tiene amenities.
-          </p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function EncabezadoAmenity({
-  amenity,
+function Aviso({
+  tipo,
+  children,
 }: {
-  amenity: Amenity
+  tipo: 'exito' | 'error'
+  children: string
 }) {
-  return (
-    <div className="card flex items-start justify-between gap-4 p-5">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Amenity seleccionado
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold">
-          {amenity.nombre}
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          {amenity.descripcion || 'Sin descripción'}
-        </p>
-      </div>
-
-      <EstadoActivo activo={amenity.activo} />
-    </div>
-  )
-}
-
-interface FormularioTurnoProps {
-  datos: TurnoAmenityInput
-  editando: boolean
-  guardando: boolean
-  amenityActivo: boolean
-  onChange: (datos: TurnoAmenityInput) => void
-  onSubmit: (event: FormEvent) => void
-  onCancelar: () => void
-}
-
-function FormularioTurno({
-  datos,
-  editando,
-  guardando,
-  amenityActivo,
-  onChange,
-  onSubmit,
-  onCancelar,
-}: FormularioTurnoProps) {
-  return (
-    <form className="card space-y-4 p-5" onSubmit={onSubmit}>
-      <div>
-        <h2 className="font-semibold">
-          {editando ? 'Editar turno' : 'Nuevo turno'}
-        </h2>
-
-        {!amenityActivo && (
-          <p className="mt-1 text-sm text-amber-700">
-            Activá el amenity para administrar sus turnos.
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <div>
-          <label className="label" htmlFor="turno-nombre">
-            Nombre
-          </label>
-
-          <input
-            id="turno-nombre"
-            className="input"
-            required
-            maxLength={60}
-            value={datos.nombre}
-            onChange={(event) =>
-              onChange({
-                ...datos,
-                nombre: event.target.value,
-              })
-            }
-          />
-        </div>
-
-        <div>
-          <label className="label" htmlFor="turno-inicio">
-            Hora de inicio
-          </label>
-
-          <input
-            id="turno-inicio"
-            className="input"
-            required
-            type="time"
-            value={datos.horaInicio}
-            onChange={(event) =>
-              onChange({
-                ...datos,
-                horaInicio: event.target.value,
-              })
-            }
-          />
-        </div>
-
-        <div>
-          <label className="label" htmlFor="turno-fin">
-            Hora de finalización
-          </label>
-
-          <input
-            id="turno-fin"
-            className="input"
-            required
-            type="time"
-            value={datos.horaFin}
-            onChange={(event) =>
-              onChange({
-                ...datos,
-                horaFin: event.target.value,
-              })
-            }
-          />
-        </div>
-      </div>
-
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={datos.activo}
-          onChange={(event) =>
-            onChange({
-              ...datos,
-              activo: event.target.checked,
-            })
-          }
-        />
-        Turno activo
-      </label>
-
-      <div className="flex gap-2">
-        <button
-          className="btn-primary"
-          disabled={!amenityActivo || guardando}
-          type="submit"
-        >
-          {guardando
-            ? 'Guardando...'
-            : editando
-              ? 'Guardar turno'
-              : 'Crear turno'}
-        </button>
-
-        {editando && (
-          <button
-            className="btn-secondary"
-            type="button"
-            onClick={onCancelar}
-          >
-            Cancelar
-          </button>
-        )}
-      </div>
-    </form>
-  )
-}
-
-interface ListaTurnosProps {
-  cargando: boolean
-  error: boolean
-  turnos: TurnoAmenity[]
-  cambiandoEstado: boolean
-  onEditar: (turno: TurnoAmenity) => void
-  onCambiarEstado: (turno: TurnoAmenity) => void
-  onReintentar: () => void
-}
-
-function ListaTurnos({
-  cargando,
-  error,
-  turnos,
-  cambiandoEstado,
-  onEditar,
-  onCambiarEstado,
-  onReintentar,
-}: ListaTurnosProps) {
-  if (cargando) {
-    return <Cargando />
-  }
-
-  if (error) {
-    return <ErrorCarga onReintentar={onReintentar} />
-  }
+  const estilo =
+    tipo === 'exito'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-red-200 bg-red-50 text-red-700'
 
   return (
-    <div className="card overflow-x-auto">
-      <table className="w-full min-w-[650px]">
-        <thead className="bg-brand">
-          <tr>
-            <th className="th rounded-tl-2xl">Turno</th>
-            <th className="th">Horario</th>
-            <th className="th">Estado</th>
-            <th className="th rounded-tr-2xl text-right">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-slate-100">
-          {turnos.map((turno) => (
-            <tr key={turno.id}>
-              <td className="td font-medium">
-                {turno.nombre}
-              </td>
-
-              <td className="td">
-                {turno.horaInicio} a {turno.horaFin}
-              </td>
-
-              <td className="td">
-                <EstadoActivo activo={turno.activo} />
-              </td>
-
-              <td className="td">
-                <div className="flex justify-end gap-2">
-                  <button
-                    className="btn-secondary"
-                    type="button"
-                    onClick={() => onEditar(turno)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="btn-secondary"
-                    disabled={cambiandoEstado}
-                    type="button"
-                    onClick={() =>
-                      onCambiarEstado(turno)
-                    }
-                  >
-                    {turno.activo
-                      ? 'Desactivar'
-                      : 'Activar'}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-
-          {turnos.length === 0 && (
-            <tr>
-              <td
-                className="td py-8 text-center text-slate-500"
-                colSpan={4}
-              >
-                Este amenity todavía no tiene turnos.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function EstadoActivo({ activo }: { activo: boolean }) {
-  return (
-    <span
-      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-        activo
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'bg-slate-200 text-slate-600'
-      }`}
+    <div
+      className={`rounded-xl border p-3 text-sm ${estilo}`}
     >
-      {activo ? 'Activo' : 'Inactivo'}
-    </span>
+      {children}
+    </div>
   )
+}
+
+function validarRango(desde: string, hasta: string) {
+  if (!desde || !hasta) {
+    return 'Completá ambas fechas.'
+  }
+
+  const fechaDesde = new Date(`${desde}T00:00:00`)
+  const fechaHasta = new Date(`${hasta}T00:00:00`)
+
+  if (fechaHasta < fechaDesde) {
+    return 'La fecha hasta no puede ser anterior a la fecha desde.'
+  }
+
+  const limite = new Date(fechaDesde)
+  limite.setDate(limite.getDate() + 30)
+
+  return fechaHasta > limite
+    ? 'El rango no puede superar los 31 días.'
+    : ''
 }
 
 function obtenerMensaje(error: unknown) {
-  if (error instanceof ApiError) {
-    return error.message
-  }
-
-  if (error instanceof Error) {
+  if (error instanceof ApiError || error instanceof Error) {
     return error.message
   }
 
