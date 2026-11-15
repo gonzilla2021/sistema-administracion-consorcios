@@ -151,6 +151,16 @@ public class AmenityService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public Amenity buscarPorId(UUID amenityId) {
+        return amenityRepository
+            .findById(amenityId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Amenity no encontrado"
+            ));
+    }
+
     @Transactional
     public AmenityResponse cambiarEstado(
         UUID consorcioId,
