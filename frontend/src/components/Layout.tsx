@@ -66,9 +66,14 @@ export default function Layout() {
               Tablero
             </NavLink>
             {esResidente && (
-              <NavLink to="/mis-liquidaciones" className={enlace}>
-                Mis liquidaciones
-              </NavLink>
+              <>
+                <NavLink to="/mis-liquidaciones" className={enlace}>
+                  Mis liquidaciones
+                </NavLink>
+                <NavLink to="/mis-reservas" className={enlace}>
+                  Reservas de amenities
+                </NavLink>
+              </>
             )}
             {gestiona && (
               <>
