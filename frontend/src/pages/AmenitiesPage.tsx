@@ -10,6 +10,7 @@ import AmenityList from '../components/amenities/AmenityList'
 import ReservasSection from '../components/amenities/ReservasSection'
 import TurnoForm from '../components/amenities/TurnoForm'
 import TurnoList from '../components/amenities/TurnoList'
+import BloqueosSection from '../components/amenities/BloqueosSection'
 import { useConsorcioActivo } from '../components/ConsorcioActivo'
 import { ApiError } from '../services/api'
 import {
@@ -22,10 +23,15 @@ import {
   listarAmenities,
   listarReservasAmenity,
   listarTurnosAmenity,
+  crearBloqueoAmenity,
+  desbloquearAmenity,
+  listarBloqueosAmenity
 } from '../services/amenities'
 import type {
   Amenity,
   AmenityInput,
+  BloqueoAmenity,
+  BloqueoAmenityInput,
   TurnoAmenity,
   TurnoAmenityInput,
 } from '../types'
@@ -103,6 +109,20 @@ export default function AmenitiesPage() {
       listarTurnosAmenity(consorcioId, amenityId!),
     enabled: Boolean(consorcioId && amenityId),
   })
+
+  const bloqueosQuery = useQuery({
+    queryKey: [
+        'bloqueos-amenity',
+        consorcioId,
+        amenityId,
+    ],
+    queryFn: () =>
+        listarBloqueosAmenity(
+        consorcioId,
+        amenityId!,
+        ),
+    enabled: Boolean(consorcioId && amenityId),
+    })
 
   const errorRango = useMemo(
     () => validarRango(desde, hasta),
@@ -265,6 +285,70 @@ export default function AmenitiesPage() {
     onError: manejarError,
   })
 
+  const crearBloqueo = useMutation({
+    mutationFn: (datos: BloqueoAmenityInput) => {
+        if (!amenityId) {
+        throw new Error('Seleccioná un amenity.')
+        }
+
+        return crearBloqueoAmenity(
+        consorcioId,
+        amenityId,
+        datos,
+        )
+    },
+
+    onSuccess: async () => {
+        await queryClient.invalidateQueries({
+        queryKey: [
+            'bloqueos-amenity',
+            consorcioId,
+            amenityId,
+        ],
+        })
+
+        await queryClient.invalidateQueries({
+        queryKey: [
+            'reservas-amenity',
+            consorcioId,
+            amenityId,
+        ],
+        })
+
+        exito('Turno bloqueado correctamente.')
+    },
+
+    onError: manejarError,
+    })
+
+    const desbloquear = useMutation({
+        mutationFn: (bloqueo: BloqueoAmenity) => {
+            if (!amenityId) {
+            throw new Error('Seleccioná un amenity.')
+            }
+
+            return desbloquearAmenity(
+            consorcioId,
+            amenityId,
+            bloqueo.id,
+            )
+        },
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+            queryKey: [
+                'bloqueos-amenity',
+                consorcioId,
+                amenityId,
+            ],
+            })
+
+            exito('Turno desbloqueado correctamente.')
+        },
+
+        onError: manejarError,
+        })
+
   function invalidar(queryKey: unknown[]) {
     return queryClient.invalidateQueries({ queryKey })
   }
@@ -415,6 +499,22 @@ export default function AmenitiesPage() {
                   void reservasQuery.refetch()
                 }}
               />
+              <BloqueosSection
+                turnos={turnosQuery.data ?? []}
+                bloqueos={bloqueosQuery.data ?? []}
+                cargando={bloqueosQuery.isLoading}
+                error={bloqueosQuery.isError}
+                guardando={crearBloqueo.isPending}
+                desbloqueando={desbloquear.isPending}
+                amenityActivo={amenitySeleccionado.activo}
+                onCrear={(datos) => crearBloqueo.mutate(datos)}
+                onDesbloquear={(bloqueo) =>
+                    desbloquear.mutate(bloqueo)
+                }
+                onReintentar={() => {
+                    void bloqueosQuery.refetch()
+                }}
+                />
             </>
           ) : (
             <div className="card p-8 text-center text-slate-500">
