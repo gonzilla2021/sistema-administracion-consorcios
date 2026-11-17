@@ -52,11 +52,15 @@ public class LiquidacionService {
 
         String periodo = request.periodo();
 
-        if (liquidaciones.findByConsorcioIdAndPeriodo(
-                consorcioId, periodo).isPresent()) {
+        Liquidacion existente = liquidaciones
+                .findByConsorcioIdAndPeriodo(consorcioId, periodo)
+                .orElse(null);
+
+        if (existente != null &&
+                existente.getEstado() == EstadoLiquidacion.CERRADA) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Ya existe una liquidación para este período"
+                    "Ya existe una liquidación cerrada para este período"
             );
         }
 
@@ -118,12 +122,22 @@ public class LiquidacionService {
             );
         }
 
-        Liquidacion liquidacion = new Liquidacion();
-        liquidacion.setConsorcio(consorcio);
-        liquidacion.setPeriodo(periodo);
-        liquidacion.setEstado(EstadoLiquidacion.ABIERTA);
+        Liquidacion liquidacion;
 
-        liquidacion = liquidaciones.save(liquidacion);
+        if (existente != null) {
+            // Período abierto: se recalcula con los gastos actuales
+            // (los pagos solo se registran sobre liquidaciones cerradas).
+            detalles.deleteAll(
+                    detalles.findByLiquidacionId(existente.getId()));
+            detalles.flush();
+            liquidacion = existente;
+        } else {
+            liquidacion = new Liquidacion();
+            liquidacion.setConsorcio(consorcio);
+            liquidacion.setPeriodo(periodo);
+            liquidacion.setEstado(EstadoLiquidacion.ABIERTA);
+            liquidacion = liquidaciones.save(liquidacion);
+        }
 
         BigDecimal acumulado = BigDecimal.ZERO;
 

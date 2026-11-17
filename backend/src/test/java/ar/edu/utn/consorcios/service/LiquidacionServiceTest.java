@@ -89,11 +89,31 @@ class LiquidacionServiceTest {
         assertEquals(List.of(new BigDecimal("33.33"), new BigDecimal("33.33"), new BigDecimal("33.34")), importes);
         assertEquals(new BigDecimal("100.00"), importes.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
-    @Test void rechazaPeriodoDuplicado() {
+    @Test void rechazaPeriodoCerrado() {
+        Liquidacion cerrada = new Liquidacion();
+        cerrada.setEstado(EstadoLiquidacion.CERRADA);
         when(liquidaciones.findByConsorcioIdAndPeriodo(consorcioId, "2026-02"))
-                .thenReturn(Optional.of(new Liquidacion()));
+                .thenReturn(Optional.of(cerrada));
         rechazaGeneracion();
         verifyNoInteractions(gastos, unidades);
+    }
+    @Test void recalculaPeriodoAbierto() {
+        gastos("1000.00");
+        Liquidacion abierta = new Liquidacion();
+        abierta.setId(UUID.randomUUID());
+        abierta.setEstado(EstadoLiquidacion.ABIERTA);
+        LiquidacionUnidad viejo = new LiquidacionUnidad();
+        when(liquidaciones.findByConsorcioIdAndPeriodo(consorcioId, "2026-02"))
+                .thenReturn(Optional.of(abierta));
+        when(detalles.findByLiquidacionId(abierta.getId())).thenReturn(List.of(viejo));
+        when(unidades.findByConsorcioIdOrderByIdentificador(consorcioId))
+                .thenReturn(List.of(unidad(1, "25"), unidad(2, "75")));
+        var respuesta = service.generar(auth, consorcioId, request);
+        verify(detalles).deleteAll(List.of(viejo));
+        verify(liquidaciones, never()).save(any());
+        verify(detalles, times(2)).save(any());
+        assertEquals(abierta.getId(), respuesta.id());
+        assertEquals(new BigDecimal("1000.00"), respuesta.totalGastos());
     }
     @Test void rechazaPeriodoSinGastos() {
         when(gastos.findByConsorcioIdAndFechaBetween(consorcioId,
