@@ -11,10 +11,12 @@ const formatearPeriodo = (periodo: string) => {
     return periodo
   }
 
-  return new Intl.DateTimeFormat('es-AR', {
+  const texto = new Intl.DateTimeFormat('es-AR', {
     month: 'long',
     year: 'numeric',
   }).format(new Date(anio, mes - 1, 1))
+
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
 
 const formatearFecha = (fecha: string | null) => {
@@ -135,7 +137,7 @@ export default function MisLiquidacionesPage() {
                   <tr
                     key={`${liquidacion.liquidacionId}-${liquidacion.unidadFuncionalId}`}
                   >
-                    <td className="td capitalize">
+                    <td className="td">
                       {formatearPeriodo(liquidacion.periodo)}
                     </td>
 

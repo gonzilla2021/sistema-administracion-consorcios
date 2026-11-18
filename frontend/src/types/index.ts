@@ -176,3 +176,103 @@ export const ROL_LEGIBLE: Record<Rol, string> = {
   PROPIETARIO: 'Propietario',
   INQUILINO: 'Inquilino',
 }
+
+export type EstadoReservaAmenity =
+  | 'ACTIVA'
+  | 'CANCELADA_POR_USUARIO'
+
+export type EstadoDisponibilidad =
+  | 'DISPONIBLE'
+  | 'RESERVADO'
+  | 'RESERVA_PROPIA'
+  | 'BLOQUEADO'
+
+/** Amenity asociado a un consorcio */
+export interface Amenity {
+  id: string
+  consorcioId: string
+  nombre: string
+  descripcion: string | null
+  activo: boolean
+}
+
+/** Datos para crear o modificar un amenity */
+export interface AmenityInput {
+  nombre: string
+  descripcion?: string | null
+  activo: boolean
+}
+
+/** Turno configurado para un amenity */
+export interface TurnoAmenity {
+  id: string
+  amenityId: string
+  nombre: string
+  horaInicio: string
+  horaFin: string
+  activo: boolean
+}
+
+/** Datos para crear o modificar un turno */
+export interface TurnoAmenityInput {
+  nombre: string
+  horaInicio: string
+  horaFin: string
+  activo: boolean
+}
+
+/** Reserva de un amenity */
+export interface ReservaAmenity {
+  id: string
+  amenityId: string
+  amenity: string
+  turnoId: string
+  turno: string
+  horaInicio: string
+  horaFin: string
+  unidadFuncionalId: string
+  unidad: string
+  fecha: string
+  estado: EstadoReservaAmenity
+  fechaCreacion: string
+  fechaCancelacion: string | null
+}
+
+/** Datos necesarios para crear una reserva */
+export interface ReservaAmenityInput {
+  turnoId: string
+  fecha: string
+}
+
+/** Disponibilidad de un turno para una fecha */
+export interface DisponibilidadAmenity {
+  turnoId: string
+  turno: string
+  horaInicio: string
+  horaFin: string
+  fecha: string
+  disponible: boolean
+  estado: EstadoDisponibilidad
+}
+
+/** Bloqueo administrativo */
+export interface BloqueoAmenity {
+  id: string
+  amenityId: string
+  amenity: string
+  turnoId: string
+  turno: string
+  horaInicio: string
+  horaFin: string
+  fecha: string
+  motivo: string
+  fechaCreacion: string
+  activo: boolean
+}
+
+/** Datos necesarios para bloquear un turno */
+export interface BloqueoAmenityInput {
+  turnoId: string
+  fecha: string
+  motivo: string
+}

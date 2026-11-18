@@ -49,7 +49,10 @@ export default function DashboardPage() {
           {esSuper && <Acceso to="/usuarios" titulo="Usuarios" detalle="Cuentas y roles" />}
         </section>
       ) : (
-        <p className="text-sm text-slate-500">La consulta de tus unidades y liquidaciones estará disponible próximamente.</p>
+        <section className="grid gap-4 sm:grid-cols-3">
+          <Acceso to="/mis-liquidaciones" titulo="Mis liquidaciones" detalle="Consultá las liquidaciones de tu unidad y el estado de pago" />
+          <Acceso to="/mis-reservas" titulo="Reservas de amenities" detalle="Reservá el SUM y otros espacios comunes" />
+        </section>
       )}
     </div>
   )
