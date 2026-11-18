@@ -143,7 +143,7 @@ export default function DisponibilidadSection({
                   className="card overflow-hidden"
                 >
                   <header className="border-b border-slate-100 bg-slate-50 px-5 py-3">
-                    <h3 className="font-semibold capitalize text-slate-900">
+                    <h3 className="font-semibold text-slate-900">
                       {formatearFechaLarga(fecha)}
                     </h3>
                   </header>
@@ -322,10 +322,12 @@ function ElementoLeyenda({
 }
 
 function formatearFechaLarga(fecha: string) {
-  return new Intl.DateTimeFormat('es-AR', {
+  const texto = new Intl.DateTimeFormat('es-AR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   }).format(new Date(`${fecha}T00:00:00`))
+
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
