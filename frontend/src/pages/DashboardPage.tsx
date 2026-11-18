@@ -49,7 +49,7 @@ export default function DashboardPage() {
           {esSuper && <Acceso to="/usuarios" titulo="Usuarios" detalle="Cuentas y roles" />}
         </section>
       ) : (
-        <p className="text-sm text-slate-500">La consulta de tus unidades y liquidaciones estará disponible próximamente.</p>
+        <p className="text-sm text-slate-500">Consulta de liquidaciones y reservas de amenities.</p>
       )}
     </div>
   )
