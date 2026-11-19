@@ -1,6 +1,8 @@
 # 🏢 Sistema de Administración de Consorcios
 
-### Trabajo Final Integrador — Programación IV
+### Trabajo Final Integrador — Proyecto Final
+
+**Tecnicatura Universitaria en Programación — UTN a Distancia**
 
 **Grupo 128 — Universidad Tecnológica Nacional (UTN)**
 
@@ -331,6 +333,9 @@ sistema-administracion-consorcios/
 ├── database/
 │   ├── schema-consorcios.sql
 │   ├── amenities.sql
+│   ├── datos-prueba-carga.sql
+│   ├── datos-prueba-amenities.sql
+│   ├── datos-prueba-borrar.sql
 │   ├── migracion-personas-consorcio.sql
 │   ├── migracion-admin-multiconsorcio.sql
 │   └── documentación del modelo
@@ -505,6 +510,8 @@ El modelo relacional permite representar consorcios, usuarios, unidades funciona
 ### Documentación disponible
 
 - [Esquema SQL de la base de datos](database/schema-consorcios.sql).
+- [Esquema SQL del módulo de Amenities](database/amenities.sql).
+- Datos de prueba (DML): [carga](database/datos-prueba-carga.sql), [amenities](database/datos-prueba-amenities.sql) y [borrado](database/datos-prueba-borrar.sql). Las cuentas demo se crean sin contraseña utilizable; ver la [guía de instalación](docs/instalacion.md).
 - [Diagrama entidad-relación](database/diagrama-entidad-relacion.md).
 - [Diagrama de clases del modelo de dominio](database/uml-modelo-dominio.md).
 - [Guía de instalación y migraciones](docs/instalacion.md).
@@ -650,6 +657,8 @@ Toda la documentación del trabajo se encuentra referenciada desde este README.
 | [Módulos funcionales](docs/modulos.md) | Descripción y prioridades de funcionalidades. |
 | [Diagrama entidad-relación](database/diagrama-entidad-relacion.md) | Modelo relacional de la base de datos. |
 | [Esquema SQL](database/schema-consorcios.sql) | Creación de la estructura de datos. |
+| [Esquema SQL de Amenities](database/amenities.sql) | Tablas del módulo de Amenities. |
+| [Datos de prueba](database/datos-prueba-carga.sql) | Scripts DML de carga y borrado de datos ficticios. |
 | [Diagrama de clases](database/uml-modelo-dominio.md) | Modelo de dominio. |
 | [Guía de instalación](docs/instalacion.md) | Configuración y puesta en funcionamiento. |
 | [Plan B de defensa](docs/plan-b-defensa.md) | Procedimiento para una ejecución local de respaldo. |
@@ -659,7 +668,7 @@ Toda la documentación del trabajo se encuentra referenciada desde este README.
 
 ## 🎓 15. Entrega final y defensa
 
-El proyecto se presenta como Trabajo Final Integrador de Programación IV.
+El proyecto se presenta como Trabajo Final Integrador (Proyecto Final) de la Tecnicatura Universitaria en Programación de la UTN.
 
 ### Informe Final
 
@@ -685,7 +694,7 @@ Durante la defensa se pueden demostrar los procesos principales de administraci�
 
 ## 👨‍💻 16. Equipo de desarrollo
 
-**Grupo 128 — Programación IV**
+**Grupo 128 — Proyecto Final, Tecnicatura Universitaria en Programación (UTN)**
 
 - Lautaro Buchek
 - Hernán Casalderrey

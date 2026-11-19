@@ -142,12 +142,23 @@ on conflict (email) do nothing;
 
 ### Datos de prueba
 
-Para probar el sistema con datos (consorcios, unidades, personas, gastos, liquidaciones y pagos) se usa un par de scripts de **datos ficticios**. No están en el repositorio: se piden al equipo, porque cargan cuentas con contraseña conocida.
+Para probar el sistema con datos se usan tres scripts DML de **datos ficticios** (anonimizados), en `database/`. Cada uno corre en una sola transacción:
 
-1. `datos-prueba-borrar.sql`: elimina los datos de prueba anteriores (consorcios `Consorcio Demo %` y usuarios y personas `@demo.test`). No toca el superadministrador real.
-2. `datos-prueba-carga.sql`: los vuelve a cargar, en una sola transacción.
+1. `database/datos-prueba-borrar.sql`: elimina los datos de prueba anteriores (consorcios `Consorcio Demo %`, sus amenities, y usuarios y personas `@demo.test`). No toca el superadministrador real. Solo hace falta si ya se cargaron antes.
+2. `database/datos-prueba-carga.sql`: carga 4 consorcios, unidades, personas, vinculaciones, gastos, liquidaciones y pagos.
+3. `database/datos-prueba-amenities.sql`: carga espacios comunes, turnos, un bloqueo y reservas. Las fechas son relativas al día de ejecución, para que caigan dentro de la ventana de reserva de 31 días. Puede ejecutarse más de una vez.
 
-Quedan estos usuarios (la contraseña la define el equipo y no se guarda en el repositorio):
+Por seguridad, **las cuentas `@demo.test` se crean sin contraseña utilizable**: el repositorio no publica claves ni hashes. Para habilitarlas, después de la carga ejecutar, reemplazando `<contraseña>`:
+
+```sql
+update dbo.usuarios
+   set passwordhash = extensions.crypt('<contraseña>', extensions.gen_salt('bf', 10))
+ where email like '%@demo.test';
+```
+
+En un PostgreSQL local (Docker), donde `pgcrypto` queda en el esquema `public`, usar `crypt(...)` y `gen_salt(...)` sin el prefijo `extensions.`.
+
+Quedan estos usuarios:
 
 | Usuario | Consorcios que administra |
 |---|---|
@@ -157,7 +168,9 @@ Quedan estos usuarios (la contraseña la define el equipo y no se guarda en el r
 | `admin3@demo.test` | Ninguno (para probar el estado vacío) |
 | `admin4@demo.test` | Demo 4 |
 
-**Antes de una entrega real hay que borrar estos usuarios** con `datos-prueba-borrar.sql`.
+Además se cargan otras 118 cuentas con el formato `nombre.apellidoN@demo.test` (115 de propietarios e inquilinos y 3 administrativas). En total, 123 usuarios.
+
+**Antes de un uso real hay que borrar estos usuarios** con `database/datos-prueba-borrar.sql`.
 
 ### Copia de la base de datos (respaldo o prueba local)
 
@@ -166,7 +179,7 @@ La base de Supabase se puede bajar con `pg_dump`, restaurar en un PostgreSQL loc
 - Usar la imagen `postgres:17` (Supabase usa PostgreSQL 17; `pg_dump` 16 se niega a volcarla).
 - Al ejecutar el backend contra una base local, agregar `-Duser.timezone=America/Argentina/Buenos_Aires`; si no, PostgreSQL rechaza la zona horaria que informa Windows.
 
-`respaldo.sql` contiene datos reales y hashes de contraseña: no se sube al repositorio ni se comparte por chats grupales. Para reconstruir una base **vacía** alcanza con `database/schema-consorcios.sql` y el insert del primer superadministrador (ver más arriba).
+`respaldo.sql` contiene datos reales y hashes de contraseña: no se sube al repositorio ni se comparte por chats grupales. Para reconstruir una base **vacía** alcanza con `database/schema-consorcios.sql`, `database/amenities.sql` y el insert del primer superadministrador (ver más arriba). Para tener además datos de prueba, seguir con los scripts de la sección anterior.
 
 ### Errores frecuentes
 
