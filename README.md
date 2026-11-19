@@ -172,10 +172,11 @@ El acceso se controla desde el backend para impedir la consulta o modificación 
 
 ### 4.9. Funcionalidades complementarias
 
+El proyecto incluye además el módulo de **Amenities**: el administrador configura espacios comunes (SUM, parrilla, gimnasio, etc.), sus turnos y bloqueos por fecha; propietarios e inquilinos consultan disponibilidad, reservan turnos y cancelan sus propias reservas.
+
 Dentro del alcance evolutivo del proyecto se contemplan:
 
 - Registro y seguimiento de reclamos.
-- Gestión de reservas de amenities o espacios comunes.
 - Historial ampliado de pagos y liquidaciones.
 - Actas y avisos del consorcio.
 - Notificaciones.
@@ -329,6 +330,7 @@ sistema-administracion-consorcios/
 │
 ├── database/
 │   ├── schema-consorcios.sql
+│   ├── amenities.sql
 │   ├── migracion-personas-consorcio.sql
 │   ├── migracion-admin-multiconsorcio.sql
 │   └── documentación del modelo
@@ -411,7 +413,7 @@ El proyecto dispone del script:
 
 `database/schema-consorcios.sql`
 
-Este archivo permite crear el esquema correspondiente a la aplicación en una base PostgreSQL nueva.
+Este archivo permite crear el esquema del núcleo administrativo en una base PostgreSQL nueva. Luego debe ejecutarse `database/amenities.sql`, que agrega las cuatro tablas del módulo de Amenities. El orden completo está en la [guía de instalación](docs/instalacion.md).
 
 Para bases existentes que utilicen una versión anterior del esquema, se dispone de las siguientes migraciones:
 
@@ -526,7 +528,7 @@ Para una base nueva debe utilizarse el esquema actualizado; las migraciones docu
 
 ### Pruebas automatizadas del backend
 
-El proyecto dispone de una batería de 48 pruebas automatizadas orientadas a verificar comportamientos del backend.
+El proyecto dispone de una batería de 55 pruebas automatizadas orientadas a verificar comportamientos del backend: 49 del núcleo administrativo y 6 del módulo de Amenities.
 
 Las pruebas documentadas cubren funcionalidades relacionadas con:
 
@@ -537,13 +539,14 @@ Las pruebas documentadas cubren funcionalidades relacionadas con:
 - Generación de liquidaciones.
 - Control de pagos.
 - Validación de permisos y restricciones de acceso.
+- Módulo de Amenities: alta de espacios, reservas de turnos y bloqueos administrativos.
 
 ### Resultado documentado
 
 | Indicador | Resultado |
 |---|---:|
-| Pruebas ejecutadas | 48 |
-| Pruebas aprobadas | 48 |
+| Pruebas ejecutadas | 55 |
+| Pruebas aprobadas | 55 |
 | Fallas | 0 |
 | Errores | 0 |
 | Omitidas | 0 |
@@ -650,6 +653,7 @@ Toda la documentación del trabajo se encuentra referenciada desde este README.
 | [Diagrama de clases](database/uml-modelo-dominio.md) | Modelo de dominio. |
 | [Guía de instalación](docs/instalacion.md) | Configuración y puesta en funcionamiento. |
 | [Plan B de defensa](docs/plan-b-defensa.md) | Procedimiento para una ejecución local de respaldo. |
+| [Informe Final (PDF)](docs/Informe_Final_Grupo128_Buchek_Casalderrey_Castellini.pdf) | Informe final del Proyecto Final, Grupo 128. |
 
 ---
 
@@ -660,6 +664,8 @@ El proyecto se presenta como Trabajo Final Integrador de Programación IV.
 ### Informe Final
 
 El informe reúne la problemática abordada, los objetivos, la arquitectura, el diseño de datos, las decisiones técnicas, las funcionalidades y las pruebas realizadas.
+
+**📄 Informe Final (PDF):** [docs/Informe_Final_Grupo128_Buchek_Casalderrey_Castellini.pdf](docs/Informe_Final_Grupo128_Buchek_Casalderrey_Castellini.pdf)
 
 ### Video de presentación
 
