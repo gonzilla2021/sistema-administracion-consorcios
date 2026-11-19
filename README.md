@@ -661,13 +661,11 @@ El proyecto se presenta como Trabajo Final Integrador de Programación IV.
 
 El informe reúne la problemática abordada, los objetivos, la arquitectura, el diseño de datos, las decisiones técnicas, las funcionalidades y las pruebas realizadas.
 
-**📄 Informe Final en PDF:** [AGREGAR ENLACE AL ARCHIVO PDF]
-
 ### Video de presentación
 
 El video contiene una explicación general del proyecto, las principales decisiones técnicas y una demostración de las funcionalidades desarrolladas.
 
-**🎬 Video de presentación final:** [AGREGAR ENLACE AL VIDEO]
+**🎬 Video de presentación final:** https://youtu.be/_2T6zQEDHxs
 
 ### Demostración del sistema
 
