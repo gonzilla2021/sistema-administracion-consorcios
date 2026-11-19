@@ -124,10 +124,10 @@ Después de la prueba, la unidad seguía con 3 vinculaciones (no se agregó ning
 ## 5. Alcance no cubierto por el recorrido manual
 
 - **Exportaciones a Excel y CSV:** no se probaron (descargan archivos).
-- **Cuentas de propietario e inquilino:** el backend expone `GET /api/mi-cuenta/liquidaciones`, pero la pantalla no existe todavía; no hay nada que recorrer.
+- **Cuentas de propietario e inquilino:** la pantalla Mis liquidaciones existe, pero no formó parte de este recorrido manual de 31 casos (que se hizo con el administrador). Se verificó después, en el sitio publicado, el acceso por rol y la lectura de las liquidaciones propias.
 - **Reparto proporcional con coeficientes distintos:** las unidades de Demo 2 tienen coeficientes casi iguales, así que el caso LI-02 prueba la suma exacta pero no la proporcionalidad. Este caso ya se cubrió mediante una prueba automática con coeficientes 25 y 75 (sección 7); no se verificó de punta a punta en el navegador.
 - **Pruebas de concurrencia, carga y accesibilidad.**
-- **Cobertura automatizada:** se agregaron 48 pruebas del backend, detalladas en la sección 7. Complementan el recorrido manual y no equivalen a una prueba integral del sistema.
+- **Cobertura automatizada:** se agregaron 55 pruebas del backend, detalladas en la sección 7. Complementan el recorrido manual y no equivalen a una prueba integral del sistema.
 
 ## 6. Limpieza de los datos de prueba
 
@@ -149,21 +149,24 @@ commit;
 
 ## 7. Pruebas automatizadas del backend
 
-El 8 de noviembre de 2026 se ejecutaron localmente 48 pruebas con JUnit 5, Mockito y Spring Security Test. Los archivos se encuentran en `backend/src/test/java/ar/edu/utn/consorcios/service/`.
+Se ejecutaron localmente 55 pruebas (48 el 8 de noviembre de 2026; 7 más en las actualizaciones posteriores) con JUnit 5, Mockito y Spring Security Test. Los archivos se encuentran en `backend/src/test/java/ar/edu/utn/consorcios/service/`.
 
 | Clase | Casos | Cobertura principal |
 |---|---:|---|
 | `PagoServiceTest` | 8 | Registro y reversión, pago duplicado, liquidación abierta, registro inexistente y acceso por consorcio |
-| `LiquidacionServiceTest` | 7 | Reparto con coeficientes desiguales, ajuste de centavos, período duplicado o sin gastos, unidades y coeficientes inválidos |
+| `LiquidacionServiceTest` | 8 | Reparto con coeficientes desiguales, ajuste de centavos, período duplicado o sin gastos, unidades y coeficientes inválidos |
 | `PersonaServiceTest` | 3 | Alta y normalización, DNI duplicado dentro del consorcio y consulta de persona de otro consorcio |
 | `VinculacionUnidadServiceTest` | 8 | Fechas inválidas, pertenencia al consorcio y superposición de períodos, incluidos sus extremos |
 | `ConsorcioServiceTest` | 6 | Acceso del superadministrador, administrador asignado y restricciones para otros usuarios |
 | `PagoPermisosTest` | 4 | Seguridad de método de Spring sobre la consulta de pagos: permite administradores y rechaza propietarios e inquilinos |
 | `AuthServiceTest` | 4 | Login válido, contraseña incorrecta, usuario inexistente y usuario inactivo |
 | `GastoServiceTest` | 8 | Alta, modificación y eliminación, períodos cerrados y pertenencia al consorcio |
-| **Total** | **48** | |
+| `AmenityServiceTest` | 2 | Alta de espacios comunes y rechazo de nombre duplicado en el consorcio |
+| `BloqueoAmenityServiceTest` | 2 | Bloqueo de turnos libres y rechazo del bloqueo de un turno ya reservado |
+| `ReservaAmenityServiceTest` | 2 | Alta de reservas y rechazo de un turno ya reservado |
+| **Total** | **55** | |
 
-**Resultado de la ejecución local:** 48 pruebas ejecutadas, 0 fallas, 0 errores y 0 omitidas; `BUILD SUCCESS`.
+**Resultado de la ejecución local:** 55 pruebas ejecutadas, 0 fallas, 0 errores y 0 omitidas; `BUILD SUCCESS`.
 
 Se ejecutan desde la carpeta `backend`:
 
@@ -178,7 +181,7 @@ Se ejecutan desde la carpeta `backend`:
 - `PagoPermisosTest` utiliza el proxy real de seguridad de métodos de Spring. No ejecuta solicitudes HTTP ni el filtro JWT.
 - No se verifican aquí las consultas JPA, las restricciones de PostgreSQL, las transacciones contra una base real, la firma o vencimiento de JWT ni la configuración CORS.
 - Los permisos de método se comprueban sobre la consulta de pagos; esto no demuestra la protección de todos los endpoints.
-- Siguen pendientes las pruebas integrales entre frontend, API y base de datos, así como concurrencia y carga. Los 31 casos manuales de la sección 2 y los 48 casos automáticos son ejecuciones diferentes y no deben interpretarse como una única cobertura completa.
+- Siguen pendientes las pruebas integrales entre frontend, API y base de datos, así como concurrencia y carga. Los 31 casos manuales de la sección 2 y los 55 casos automáticos son ejecuciones diferentes y no deben interpretarse como una única cobertura completa.
 
 ## 8. Entorno publicado
 

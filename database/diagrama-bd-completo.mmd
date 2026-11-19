@@ -1,0 +1,125 @@
+erDiagram
+    consorcios ||--o{ gastos : ""
+    consorcios ||--o{ liquidaciones : ""
+    consorcios ||--o{ usuariosconsorcios : ""
+    consorcios ||--o{ personas : ""
+    consorcios ||--o{ unidadesfuncionales : ""
+    consorcios ||--o{ amenities : ""
+    usuarios ||--o{ usuariosconsorcios : ""
+    personas ||--o| usuarios : ""
+    personas ||--o{ vinculacionesunidad : ""
+    unidadesfuncionales ||--o{ vinculacionesunidad : ""
+    unidadesfuncionales ||--o{ liquidacionesunidad : ""
+    liquidaciones ||--o{ liquidacionesunidad : ""
+    unidadesfuncionales ||--o{ reservas_amenity : ""
+    personas ||--o{ reservas_amenity : ""
+    amenities ||--o{ turnos_amenity : ""
+    amenities ||--o{ reservas_amenity : ""
+    amenities ||--o{ bloqueos_amenity : ""
+    turnos_amenity ||--o{ reservas_amenity : ""
+    turnos_amenity ||--o{ bloqueos_amenity : ""
+
+    consorcios {
+        uuid id PK
+        varchar_150 nombre
+        varchar_250 direccion
+        numeric_9_6 totalcoeficientes
+        date fechaalta
+    }
+    gastos {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_300 descripcion
+        numeric_18_2 monto
+        varchar_15 tipo
+        date fecha
+        varchar_500 comprobante
+    }
+    liquidaciones {
+        uuid id PK
+        uuid consorcioid FK
+        char_7 periodo
+        date fechageneracion
+        varchar_10 estado
+    }
+    usuariosconsorcios {
+        uuid usuarioid PK
+        uuid consorcioid PK
+    }
+    personas {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_100 nombre
+        varchar_100 apellido
+        varchar_10 dni
+        varchar_254 email
+        varchar_30 telefono
+    }
+    unidadesfuncionales {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_20 identificador
+        numeric_9_6 coeficientepropiedad
+    }
+    liquidacionesunidad {
+        uuid id PK
+        uuid consorcioid FK
+        uuid liquidacionid FK
+        uuid unidadfuncionalid FK
+        numeric_18_2 importe
+        varchar_10 estadopago
+        date fechapago
+        boolean visibleparainquilino
+    }
+    usuarios {
+        uuid id PK
+        varchar_254 email
+        varchar_255 passwordhash
+        varchar_30 rol
+        boolean activo
+        timestamp fechaalta
+        uuid personaid FK
+    }
+    vinculacionesunidad {
+        uuid id PK
+        uuid unidadfuncionalid FK
+        uuid personaid FK
+        varchar_15 tipo
+        date fechainicio
+        date fechafin
+    }
+    amenities {
+        uuid id PK
+        uuid consorcio_id FK
+        varchar_100 nombre
+        varchar_500 descripcion
+        boolean activo
+    }
+    turnos_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        varchar_60 nombre
+        time hora_inicio
+        time hora_fin
+        boolean activo
+    }
+    reservas_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        uuid turno_id FK
+        uuid persona_id FK
+        uuid unidad_funcional_id FK
+        date fecha
+        varchar_40 estado
+        timestamp fecha_creacion
+        timestamp fecha_cancelacion
+    }
+    bloqueos_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        uuid turno_id FK
+        date fecha
+        varchar_500 motivo
+        timestamp fecha_creacion
+        boolean activo
+    }

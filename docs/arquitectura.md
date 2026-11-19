@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Administración de Consorcios  
 **Trabajo Final Integrador — Grupo 128**  
-**Entrega:** Segunda entrega
+**Entrega:** Entrega final
 
 ## 1. Arquitectura elegida
 

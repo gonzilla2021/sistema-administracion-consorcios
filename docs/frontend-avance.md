@@ -20,7 +20,7 @@ Todas, salvo el login, son rutas protegidas (`RutaProtegida`): sin sesión redir
 | Ruta | Pantalla | Quién la usa | Qué hace |
 |---|---|---|---|
 | `/login` | Login | Todos | Email y contraseña; muestra el estado de la conexión con el servidor y la base. |
-| `/` | Tablero | Todos | Resumen: cantidad de consorcios y de unidades del consorcio activo. |
+| `/` | Tablero | Todos | Administrador: cantidad de consorcios y de unidades del consorcio activo. Propietario e inquilino: accesos a Mis liquidaciones y Reservas. |
 | `/consorcios` | Consorcios | Superadmin, administrador | Alta y edición de consorcios (el alta es solo del superadmin). Un administrador sin consorcios asignados ve un aviso. |
 | `/unidades` | Unidades | Superadmin, administrador | Edición del conjunto de unidades y sus coeficientes con una barra que suma 100. |
 | `/personas` | Personas | Superadmin, administrador | Personas del consorcio activo: alta, edición, búsqueda, exportación a Excel y CSV. DNI único por consorcio. |
@@ -30,6 +30,9 @@ Todas, salvo el login, son rutas protegidas (`RutaProtegida`): sin sesión redir
 | `/pagos` | Pagos | Superadmin, administrador | Marca la liquidación de cada unidad como pagada o revierte el pago. |
 | `/usuarios` | Usuarios | Solo superadmin | Alta de cuentas, activar/desactivar y asignar a cada administrador **uno, varios o ningún consorcio**. |
 | `/cuenta` | Cambiar contraseña | Todos | Cambio de la contraseña propia. |
+| `/amenities` | Amenities | Superadmin, administrador | Alta y edición de espacios comunes, sus turnos (nombre y horario, sin superposiciones), bloqueos por fecha y consulta de reservas. |
+| `/mis-liquidaciones` | Mis liquidaciones | Propietario, inquilino | Consulta de las liquidaciones de las unidades vinculadas al usuario, con su estado de pago. |
+| `/mis-reservas` | Reservas | Propietario, inquilino | Consulta de disponibilidad, reserva de turnos y cancelación de las reservas propias. |
 
 ### Consorcio activo
 
@@ -69,7 +72,7 @@ Capturas de la aplicación en funcionamiento contra el backend y la base de Supa
 |---|
 | ![Control de pagos por unidad](capturas/09-pagos.png) |
 
-Faltan las capturas de Usuarios (solo superadministrador), Cambiar contraseña y el detalle de una liquidación.
+Faltan las capturas de Usuarios (solo superadministrador), Cambiar contraseña, el detalle de una liquidación y las pantallas de Amenities y de propietario/inquilino.
 
 ## 3. Contrato con el backend
 
@@ -88,7 +91,11 @@ Tipos en `frontend/src/types/index.ts`; llamadas en `frontend/src/services/`. To
 | `/api/consorcios/{id}/liquidaciones` | Superadmin, administrador | `POST`, `GET`, `GET /{id}/unidades`, `PATCH /{id}/cerrar`. |
 | `/api/consorcios/{id}/pagos` | Superadmin, administrador | `GET`, `PATCH /{detalleId}/pagar`, `PATCH /{detalleId}/revertir`. |
 | `/api/usuarios` | Solo superadmin | `GET`, `GET /{id}`, `POST`, `PATCH /{id}` (estado y `consorcioIds`). |
-| `GET /api/mi-cuenta/liquidaciones` | Propietario, inquilino | Liquidaciones de las unidades del usuario. **Sin pantalla todavía.** |
+| `GET /api/mi-cuenta/liquidaciones` | Propietario, inquilino | Liquidaciones de las unidades del usuario (pantalla Mis liquidaciones). |
+| `/api/consorcios/{id}/amenities` | Superadmin, administrador | `GET`, `GET /{amenityId}`, `POST`, `PUT /{amenityId}`, `PATCH /{amenityId}/estado`, `GET /{amenityId}/reservas`. |
+| `/api/consorcios/{id}/amenities/{amenityId}/turnos` | Superadmin, administrador | `GET`, `GET /{turnoId}`, `POST`, `PUT /{turnoId}`, `PATCH /{turnoId}/estado`. |
+| `/api/consorcios/{id}/amenities/{amenityId}/bloqueos` | Superadmin, administrador | `GET`, `POST` y `PATCH /{bloqueoId}/desbloquear`. |
+| `/api/mi-cuenta/amenities` y `/api/mi-cuenta/reservas` | Propietario, inquilino | `GET /amenities`, `GET /amenities/{amenityId}/disponibilidad`, `POST /amenities/{amenityId}/reservas`, `GET /reservas` y `PATCH /reservas/{reservaId}/cancelar`. |
 
 `rol` es uno de: `SUPERADMINISTRADOR`, `ADMINISTRADOR_CONSORCIO`, `PROPIETARIO`, `INQUILINO`. El token JWT vence a los 60 minutos por defecto (`JWT_EXPIRATION_MINUTES`).
 
@@ -105,8 +112,7 @@ frontend/src/
 
 ## 5. Pendiente y limitaciones
 
-- **Consulta del propietario e inquilino:** el backend ya expone `GET /api/mi-cuenta/liquidaciones`, pero falta la pantalla.
+- **Propietario e inquilino:** consultan liquidaciones y pagos, y reservan amenities; no operan sobre gastos, liquidaciones ni pagos, y el registro del pago lo hace el administrador.
 - No hay "olvidé mi contraseña" ni registro público de usuarios: las cuentas las crea el superadmin.
 - No hay borrado de consorcios ni de personas.
-- Faltan capturas de Usuarios, Cambiar contraseña y el detalle de una liquidación.
 - Los datos de prueba (`@demo.test`) son solo para desarrollo y deben borrarse antes de una entrega real.

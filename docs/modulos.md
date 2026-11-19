@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Administración de Consorcios  
 **Trabajo Final Integrador — Grupo 128**  
-**Entrega:** Segunda entrega
+**Entrega:** Entrega final
 
 ## 1. Prioridades
 
@@ -24,6 +24,12 @@
 | Control simple de pagos | Marcación de la liquidación de cada unidad como pendiente o pagada y registro de la fecha de pago, a cargo del administrador. No incluye cobros electrónicos ni pagos parciales. | Alta |
 | Consulta de unidades y liquidaciones | Consulta de los datos y las liquidaciones de las unidades de cada propietario o inquilino, según sus vinculaciones y permisos. | Media |
 
+## 2.1. Ampliaciones implementadas respecto del alcance inicial
+
+| Módulo | Descripción | Prioridad |
+|---|---|---|
+| Amenities (espacios comunes) | El administrador configura los espacios comunes de cada consorcio (SUM, parrilla, gimnasio, etc.), sus turnos y los bloqueos por fecha. Propietarios e inquilinos consultan la disponibilidad, reservan turnos y cancelan sus propias reservas, según sus vinculaciones con las unidades. Un amenity inactivo no admite reservas, los turnos de un mismo espacio no pueden repetir nombre ni superponer horarios, y no se puede bloquear un turno con una reserva activa. | Ampliación implementada |
+
 ## 3. Módulos y ampliaciones para etapas posteriores
 
 Estas funcionalidades no forman parte del alcance comprometido del MVP. Su implementación se evaluará una vez que el núcleo del sistema esté terminado y probado.
@@ -32,7 +38,6 @@ Estas funcionalidades no forman parte del alcance comprometido del MVP. Su imple
 |---|---|---|
 | Estado de cuenta e historial ampliado | Consulta de un estado de cuenta detallado y ampliación del historial de pagos y liquidaciones. | Baja |
 | Gestión de reclamos | Registro de reclamos y seguimiento de su estado. | Baja |
-| Reservas de amenities | Consulta de disponibilidad y gestión de reservas de espacios comunes, como SUM, pileta o quincho. | Baja |
 | Actas y avisos | Publicación y consulta de actas y comunicaciones del consorcio. | Baja |
 | Notificaciones | Envío de novedades dentro de la aplicación o por correo electrónico. | Baja |
 | Liquidaciones en PDF | Descarga de liquidaciones en formato PDF. | Baja |

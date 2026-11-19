@@ -28,13 +28,24 @@ cd sistema-administracion-consorcios
 
 ## 3. Base de datos (Supabase)
 
-La base ya está creada en el proyecto de Supabase del equipo. El esquema está aplicado; no hay que volver a ejecutar `database/schema-consorcios.sql`.
+La base ya está creada en el proyecto de Supabase del equipo. El esquema y el módulo de Amenities están aplicados; no hay que volver a ejecutar `database/schema-consorcios.sql` ni `database/amenities.sql`.
 
 Las tablas están en el esquema `dbo` (en Supabase: Table Editor → esquema `dbo`).
 
+### Base nueva: orden de los scripts
+
+Para crear la base desde cero (por ejemplo, en un PostgreSQL local o en un proyecto de Supabase nuevo) se ejecutan **dos scripts, en este orden**:
+
+| Orden | Script | Qué crea |
+|---|---|---|
+| 1 | `database/schema-consorcios.sql` | El esquema `dbo` con las nueve tablas del núcleo administrativo (consorcios, usuarios, personas, unidades, vinculaciones, gastos y liquidaciones). |
+| 2 | `database/amenities.sql` | Las cuatro tablas del módulo de Amenities (`amenities`, `turnos_amenity`, `reservas_amenity` y `bloqueos_amenity`), con sus claves, restricciones e índices. Requiere que el paso 1 ya esté aplicado, porque referencia consorcios, personas y unidades funcionales. |
+
+El segundo script usa `create table if not exists`, corre dentro de una transacción (`begin`/`commit`) y puede volver a ejecutarse sin duplicar tablas. Con las trece tablas creadas, el backend arranca y Hibernate valida el esquema sin errores. Si falta `amenities.sql`, el backend no arranca (`Schema-validation: missing table [dbo.amenities]`).
+
 ### Migraciones (solo para bases creadas con una versión anterior del esquema)
 
-`database/schema-consorcios.sql` ya incluye todos los cambios: una base nueva solo necesita ese script. Una base creada antes necesita estas migraciones, **una sola vez y en este orden**. Sin ellas el backend no arranca (`Schema-validation`), porque Hibernate verifica que las entidades coincidan con las tablas.
+`database/schema-consorcios.sql` ya incluye todos los cambios del núcleo: una base nueva solo necesita ese script y `database/amenities.sql`. Una base creada antes necesita estas migraciones, **una sola vez y en este orden**. Sin ellas el backend no arranca (`Schema-validation`), porque Hibernate verifica que las entidades coincidan con las tablas.
 
 | Orden | Script | Qué cambia |
 |---|---|---|
@@ -164,7 +175,7 @@ La base de Supabase se puede bajar con `pg_dump`, restaurar en un PostgreSQL loc
 | `password authentication failed` | `DB_PASSWORD` incorrecta, o `DB_USER` sin el prefijo `postgres.<ref>` al usar el pooler. **Revisar también si existe una variable de entorno `DB_PASSWORD` en Windows**: tiene prioridad sobre `backend/.env` y puede tener un valor viejo (`[Environment]::GetEnvironmentVariable('DB_PASSWORD','User')`; borrarla con `[Environment]::SetEnvironmentVariable('DB_PASSWORD', $null, 'User')` y reabrir la terminal y el IDE) |
 | `Unknown host` (en DBeaver o JDBC) | Error de tipeo en el host. Debe ser `aws-0-us-east-2.pooler.supabase.com` (con la `a` inicial) |
 | `UnknownHostException` / timeout | Tu red no tiene IPv6: usar el pooler |
-| `Schema-validation: missing table` o `missing column` | El esquema no está aplicado, o falta correr una migración (ver "Migraciones") |
+| `Schema-validation: missing table` o `missing column` | El esquema no está aplicado, falta `database/amenities.sql` (si la tabla es `amenities`, `turnos_amenity`, `reservas_amenity` o `bloqueos_amenity`) o falta correr una migración (ver "Migraciones") |
 | `ClassFormatError` / `NoClassDefFoundError` al arrancar | El IDE recompiló `target/` mientras corría la app: ejecutar el `.jar` (ver arriba) |
 | `JWT_SECRET debe tener al menos 32 caracteres` | Falta `JWT_SECRET` en `backend/.env` |
 | `JAVA_HOME` / versión de Java | Instalar JDK 21 y reabrir la terminal |

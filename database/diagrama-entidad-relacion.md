@@ -2,107 +2,142 @@
 
 **Proyecto:** Sistema de Administración de Consorcios  
 **Trabajo Final Integrador — Grupo 128**  
-**Entrega:** Segunda entrega  
+**Entrega:** Entrega final  
 **Base de datos:** PostgreSQL · esquema `dbo`
 
-El diagrama representa las nueve tablas del archivo `schema-consorcios.sql`. Incluye campos, tipos de datos, claves y relaciones. Los índices y las claves compuestas se detallan debajo.
+El diagrama representa las trece tablas de la base: las nueve del núcleo administrativo (`schema-consorcios.sql`) y las cuatro del módulo de Amenities (`amenities.sql`). Los nombres de tabla se muestran en minúsculas, como los almacena PostgreSQL. Incluye campos, tipos de datos, claves y relaciones. Los índices y las claves compuestas se detallan debajo.
 
 ## 1. Diagrama
 
 ```mermaid
 erDiagram
-    direction TB
+    consorcios ||--o{ gastos : ""
+    consorcios ||--o{ liquidaciones : ""
+    consorcios ||--o{ usuariosconsorcios : ""
+    consorcios ||--o{ personas : ""
+    consorcios ||--o{ unidadesfuncionales : ""
+    consorcios ||--o{ amenities : ""
+    usuarios ||--o{ usuariosconsorcios : ""
+    personas ||--o| usuarios : ""
+    personas ||--o{ vinculacionesunidad : ""
+    unidadesfuncionales ||--o{ vinculacionesunidad : ""
+    unidadesfuncionales ||--o{ liquidacionesunidad : ""
+    liquidaciones ||--o{ liquidacionesunidad : ""
+    unidadesfuncionales ||--o{ reservas_amenity : ""
+    personas ||--o{ reservas_amenity : ""
+    amenities ||--o{ turnos_amenity : ""
+    amenities ||--o{ reservas_amenity : ""
+    amenities ||--o{ bloqueos_amenity : ""
+    turnos_amenity ||--o{ reservas_amenity : ""
+    turnos_amenity ||--o{ bloqueos_amenity : ""
 
-    Consorcios ||..o{ UsuariosConsorcios : "es administrado por"
-    Usuarios ||..o{ UsuariosConsorcios : "administra"
-    Personas |o..o| Usuarios : "tiene cuenta"
-    Consorcios ||..o{ Personas : "registra"
-    Consorcios ||..o{ UnidadesFuncionales : "contiene"
-    Personas ||..o{ VinculacionesUnidad : "participa"
-    UnidadesFuncionales ||..o{ VinculacionesUnidad : "registra"
-    Consorcios ||..o{ Gastos : "registra"
-    Consorcios ||..o{ Liquidaciones : "genera"
-    Liquidaciones ||..o{ LiquidacionesUnidad : "incluye"
-    UnidadesFuncionales ||..o{ LiquidacionesUnidad : "recibe"
-
-    Consorcios {
-        UUID Id PK
-        VARCHAR(150) Nombre
-        VARCHAR(250) Direccion
-        DECIMAL TotalCoeficientes "DECIMAL(9,6)"
-        DATE FechaAlta
+    consorcios {
+        uuid id PK
+        varchar_150 nombre
+        varchar_250 direccion
+        numeric_9_6 totalcoeficientes
+        date fechaalta
     }
-
-    Usuarios {
-        UUID Id PK
-        VARCHAR(254) Email UK
-        VARCHAR(255) PasswordHash
-        VARCHAR(30) Rol
-        BOOLEAN Activo
-        TIMESTAMP FechaAlta
-        UUID PersonaId FK, UK "Opcional; unico si no es NULL"
+    gastos {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_300 descripcion
+        numeric_18_2 monto
+        varchar_15 tipo
+        date fecha
+        varchar_500 comprobante
     }
-
-    UsuariosConsorcios {
-        UUID UsuarioId PK, FK
-        UUID ConsorcioId PK, FK
+    liquidaciones {
+        uuid id PK
+        uuid consorcioid FK
+        char_7 periodo
+        date fechageneracion
+        varchar_10 estado
     }
-
-    Personas {
-        UUID Id PK
-        UUID ConsorcioId FK
-        VARCHAR(100) Nombre
-        VARCHAR(100) Apellido
-        VARCHAR(10) Dni "Unico dentro del consorcio"
-        VARCHAR(254) Email "Opcional"
-        VARCHAR(30) Telefono "Opcional"
+    usuariosconsorcios {
+        uuid usuarioid PK
+        uuid consorcioid PK
     }
-
-    UnidadesFuncionales {
-        UUID Id PK
-        UUID ConsorcioId FK
-        VARCHAR(20) Identificador
-        DECIMAL CoeficientePropiedad "DECIMAL(9,6)"
+    personas {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_100 nombre
+        varchar_100 apellido
+        varchar_10 dni
+        varchar_254 email
+        varchar_30 telefono
     }
-
-    VinculacionesUnidad {
-        UUID Id PK
-        UUID UnidadFuncionalId FK
-        UUID PersonaId FK
-        VARCHAR(15) Tipo
-        DATE FechaInicio
-        DATE FechaFin "Opcional"
+    unidadesfuncionales {
+        uuid id PK
+        uuid consorcioid FK
+        varchar_20 identificador
+        numeric_9_6 coeficientepropiedad
     }
-
-    Gastos {
-        UUID Id PK
-        UUID ConsorcioId FK
-        VARCHAR(300) Descripcion
-        DECIMAL Monto "DECIMAL(18,2)"
-        VARCHAR(15) Tipo
-        DATE Fecha
-        VARCHAR(500) Comprobante "Opcional"
+    liquidacionesunidad {
+        uuid id PK
+        uuid consorcioid FK
+        uuid liquidacionid FK
+        uuid unidadfuncionalid FK
+        numeric_18_2 importe
+        varchar_10 estadopago
+        date fechapago
+        boolean visibleparainquilino
     }
-
-    Liquidaciones {
-        UUID Id PK
-        UUID ConsorcioId FK
-        CHAR(7) Periodo
-        DATE FechaGeneracion
-        VARCHAR(10) Estado
+    usuarios {
+        uuid id PK
+        varchar_254 email
+        varchar_255 passwordhash
+        varchar_30 rol
+        boolean activo
+        timestamp fechaalta
+        uuid personaid FK
     }
-
-    LiquidacionesUnidad {
-        UUID Id PK
-        UUID ConsorcioId FK "Parte de ambas claves foraneas compuestas"
-        UUID LiquidacionId FK
-        UUID UnidadFuncionalId FK
-        DECIMAL Importe "DECIMAL(18,2)"
-        VARCHAR(10) EstadoPago
-        DATE FechaPago "Opcional"
-        BOOLEAN VisibleParaInquilino
+    vinculacionesunidad {
+        uuid id PK
+        uuid unidadfuncionalid FK
+        uuid personaid FK
+        varchar_15 tipo
+        date fechainicio
+        date fechafin
+    }
+    amenities {
+        uuid id PK
+        uuid consorcio_id FK
+        varchar_100 nombre
+        varchar_500 descripcion
+        boolean activo
+    }
+    turnos_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        varchar_60 nombre
+        time hora_inicio
+        time hora_fin
+        boolean activo
+    }
+    reservas_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        uuid turno_id FK
+        uuid persona_id FK
+        uuid unidad_funcional_id FK
+        date fecha
+        varchar_40 estado
+        timestamp fecha_creacion
+        timestamp fecha_cancelacion
+    }
+    bloqueos_amenity {
+        uuid id PK
+        uuid amenity_id FK
+        uuid turno_id FK
+        date fecha
+        varchar_500 motivo
+        timestamp fecha_creacion
+        boolean activo
     }
 ```
+
+El mismo diagrama está disponible como imagen: [PNG](diagrama-bd-completo.png) y [SVG](diagrama-bd-completo.svg); el código fuente Mermaid está en [diagrama-bd-completo.mmd](diagrama-bd-completo.mmd).
 
 ## 2. Cómo leer el diagrama
 
@@ -129,6 +164,8 @@ Además de las claves primarias, el esquema define las siguientes restricciones 
 | Liquidaciones | `(ConsorcioId, Periodo)` |
 | Liquidaciones | `(Id, ConsorcioId)` |
 | LiquidacionesUnidad | `(LiquidacionId, UnidadFuncionalId)` |
+| amenities | `(consorcio_id, nombre)` |
+| turnos_amenity | `(amenity_id, nombre)` |
 
 En `LiquidacionesUnidad`, las relaciones usan **dos campos en conjunto**:
 
@@ -152,6 +189,10 @@ Las claves primarias y las restricciones `UNIQUE` generan sus propios índices. 
 | IX_Gastos_Consorcio_Fecha | Gastos | `(ConsorcioId, Fecha DESC)`. |
 | IX_LiqUF_UF_Estado | LiquidacionesUnidad | `(UnidadFuncionalId, EstadoPago)`. |
 | IX_LiqUF_Pendientes | LiquidacionesUnidad | `ConsorcioId`, donde `EstadoPago = 'PENDIENTE'`. |
+| idx_reserva_amenity_fecha | reservas_amenity | `(amenity_id, fecha)`. |
+| idx_bloqueo_amenity_fecha | bloqueos_amenity | `(amenity_id, fecha)`. |
+| uk_reserva_activa_amenity_turno | reservas_amenity | Único sobre `(amenity_id, turno_id, fecha)`, donde `estado = 'ACTIVA'`: un turno no admite dos reservas activas el mismo día. |
+| uk_bloqueo_activo_amenity_turno | bloqueos_amenity | Único sobre `(amenity_id, turno_id, fecha)`, donde `activo = true`. |
 
 ## 5. Restricciones principales del esquema
 
@@ -162,6 +203,7 @@ Las claves primarias y las restricciones `UNIQUE` generan sus propios índices. 
 - **Gastos:** monto mayor que cero y tipo `ORDINARIO` o `EXTRAORDINARIO`.
 - **Liquidaciones:** estado `ABIERTA` o `CERRADA`.
 - **Liquidaciones por unidad:** importe mayor o igual a cero y estado de pago `PENDIENTE` o `PAGADO`.
+- **Amenities:** nombre único dentro del consorcio. **Turnos:** nombre único dentro del amenity y hora de fin posterior a la de inicio. **Reservas:** estado `ACTIVA` o `CANCELADA_POR_USUARIO`. **Bloqueos:** motivo obligatorio y activos o inactivos.
 
 ## 6. Relación entre gastos y liquidaciones
 

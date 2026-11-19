@@ -102,10 +102,48 @@ classDiagram
         PAGADO
     }
 
+    class Amenity {
+        +UUID id
+        +String nombre
+        +String descripcion
+        +boolean activo
+    }
+
+    class TurnoAmenity {
+        +UUID id
+        +String nombre
+        +LocalTime horaInicio
+        +LocalTime horaFin
+        +boolean activo
+    }
+
+    class ReservaAmenity {
+        +UUID id
+        +LocalDate fecha
+        +EstadoReservaAmenity estado
+        +LocalDateTime fechaCreacion
+        +LocalDateTime fechaCancelacion
+    }
+
+    class BloqueoAmenity {
+        +UUID id
+        +LocalDate fecha
+        +String motivo
+        +LocalDateTime fechaCreacion
+        +boolean activo
+    }
+
+    class EstadoReservaAmenity {
+        <<enumeration>>
+        ACTIVA
+        CANCELADA_POR_USUARIO
+    }
+
     Usuario "0..1" -- "0..1" Persona : corresponde a
     Usuario "1" --> "1" Rol : tiene
-    Usuario "0..*" --> "0..1" Consorcio : administra (si es admin)
+    Usuario "0..*" -- "0..*" Consorcio : administra (si es admin)
 
+    Consorcio "1" *-- "0..*" Persona : registra
     Consorcio "1" *-- "0..*" UnidadFuncional : posee
     Consorcio "1" *-- "0..*" Gasto : registra
     Consorcio "1" *-- "0..*" Liquidacion : genera
@@ -120,3 +158,14 @@ classDiagram
     Liquidacion "1" *-- "0..*" LiquidacionUnidad : detalla
     UnidadFuncional "1" -- "0..*" LiquidacionUnidad : recibe
     LiquidacionUnidad --> EstadoPago
+
+    Consorcio "1" *-- "0..*" Amenity : cuenta con
+    Amenity "1" *-- "0..*" TurnoAmenity : define
+    Amenity "1" *-- "0..*" ReservaAmenity : recibe
+    Amenity "1" *-- "0..*" BloqueoAmenity : bloquea
+    TurnoAmenity "1" -- "0..*" ReservaAmenity : se reserva en
+    TurnoAmenity "1" -- "0..*" BloqueoAmenity : se bloquea en
+    Persona "1" -- "0..*" ReservaAmenity : reserva
+    UnidadFuncional "1" -- "0..*" ReservaAmenity : a nombre de
+    ReservaAmenity --> EstadoReservaAmenity
+```
